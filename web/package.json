@@ -1,0 +1,38 @@
+{
+    "private": true,
+    "version": "0.1.0",
+    "name": "@polymedia/zklogin-demo",
+    "author": "@juzybits (https://polymedia.app)",
+    "homepage": "https://zklogin-demo.polymedia.app",
+    "description": "A webapp to test zkLogin on Sui",
+    "license": "Apache-2.0",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/juzybits/polymedia-zklogin-demo"
+    },
+    "keywords": [],
+    "scripts": {
+        "clean": "rm -rf .parcel-cache/ dist/",
+        "lint": "eslint ./src --ext .ts,.tsx",
+        "serve": "pnpm clean && parcel src/index.html",
+        "build": "pnpm clean && parcel build --no-source-maps src/index.html && cp src/static/* dist/",
+        "deploy-dev": "pnpm build && wrangler pages publish dist/ --project-name polymedia-zklogin-demo --branch dev",
+        "deploy-prod": "pnpm build && wrangler pages publish dist/ --project-name polymedia-zklogin-demo --branch main"
+    },
+    "dependencies": {
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0"
+    },
+    "devDependencies": {
+        "@parcel/transformer-less": "^2.10.0",
+        "@types/react": "^18.2.28",
+        "@types/react-dom": "^18.2.13",
+        "@typescript-eslint/eslint-plugin": "^6.7.5",
+        "@typescript-eslint/parser": "^6.7.5",
+        "eslint": "^8.51.0",
+        "eslint-plugin-deprecation": "^2.0.0",
+        "parcel": "^2.10.0",
+        "process": "^0.11.10",
+        "react-devtools": "^4.28.4"
+    }
+}
