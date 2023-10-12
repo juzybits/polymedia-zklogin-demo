@@ -31,3 +31,6 @@ https://blog.sui.io/zklogin-best-practices-considerations/
 
 zkLogin Demystified: Exploring Sui's Cutting-Edge Authentication
 https://blog.sui.io/zklogin-deep-dive/
+
+Google: OAuth 2.0 for Client-side Web Applications
+https://developers.google.com/identity/protocols/oauth2/javascript-implicit-flow
