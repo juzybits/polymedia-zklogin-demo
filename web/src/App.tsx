@@ -1,16 +1,39 @@
+import { useEffect } from 'react';
+
 import { SuiClient, getFullnodeUrl } from '@mysten/sui.js/client';
 import { Ed25519Keypair } from '@mysten/sui.js/keypairs/ed25519';
-import { generateNonce, generateRandomness } from '@mysten/zklogin';
+import {
+    generateNonce,
+    generateRandomness,
+    jwtToAddress,
+} from '@mysten/zklogin';
 
 import './App.less';
 
 export const App: React.FC = () =>
 {
+    useEffect(() => {
+        processJwt();
+    }, []);
+
     return (
         <div>
             <button onClick={googleLogin}>Google login</button>
         </div>
     );
+}
+
+function processJwt() {
+    const urlFragment = window.location.hash.substring(1);
+    const urlParams = new URLSearchParams(urlFragment);
+    const jwt = urlParams.get('id_token');
+    console.debug('jwt:', jwt);
+    if (!jwt) {
+        return;
+    }
+    const userSalt = BigInt('129390038577185583942388216820280642146'); // TODO
+    const userAddr = jwtToAddress(jwt, userSalt);
+    console.debug('userAddr:', userAddr);
 }
 
 function base64ToBigInt(base64Str: string) { // TODO remove when Mysten fixes this
