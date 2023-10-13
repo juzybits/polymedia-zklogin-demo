@@ -36,25 +36,6 @@ function processJwt() {
     console.debug('userAddr:', userAddr);
 }
 
-function base64ToBigInt(base64Str: string) { // TODO remove when Mysten fixes this
-    // Decode base64
-    const binaryString = atob(base64Str);
-
-    // Convert binary string to byte array
-    const byteArray = new Uint8Array(binaryString.length);
-    for(let i = 0; i < binaryString.length; i++) {
-        byteArray[i] = binaryString.charCodeAt(i);
-    }
-
-    // Convert byte array to BigInt
-    let hex = '';
-    byteArray.forEach(byte => {
-        hex += byte.toString(16).padStart(2, '0');
-    });
-
-    return BigInt(`0x${hex}`);
-}
-
 // https://docs.sui.io/build/zk_login#set-up-oauth-flow
 async function getNonce() {
     const suiClient = new SuiClient({
@@ -64,8 +45,10 @@ async function getNonce() {
 
     const maxEpoch = Number(epoch) + 2; // the ephemeral key will be active for 2 epochs from now
     const ephemeralKeyPair = new Ed25519Keypair();
-    const randomness = base64ToBigInt( generateRandomness() );
+    const randomness = generateRandomness();
     const nonce = generateNonce(ephemeralKeyPair.getPublicKey(), maxEpoch, randomness);
+    // console.debug('randomness:', randomness);
+    // console.debug('nonce:', nonce);
     return nonce;
 }
 
