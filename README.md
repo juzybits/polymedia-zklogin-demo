@@ -24,25 +24,25 @@ pnpm install
 pnpm serve
 ```
 
-## Zero-Knowledge proving server
+## ZK proving server
 
-A back-end service is required to generate a ZK proof for each ephemeral key pair.
+A back-end service is required to generate a zero-knowledge proof for each ephemeral key pair.
 
-https://docs.sui.io/build/zk_login#run-the-proving-service-in-your-backend
+To learn more about the steps below, check the official docs: https://docs.sui.io/build/zk_login#run-the-proving-service-in-your-backend
 
 ### 0. Prerequisites
 \- Set up a Linux server somewhere.
 
-\- Install Docker on the server: https://docs.docker.com/engine/install/
+\- Install Docker on it: https://docs.docker.com/engine/install/
 
-### 1. Download two images from from Docker Hub repository that are tagged as prover and prover-fe
-Check if there's newer images on https://hub.docker.com/r/mysten/zklogin/tags
+### 1. Download the `prover` and `prover-fe` Docker images
+Check if there are newer images: https://hub.docker.com/r/mysten/zklogin/tags
 ```
 docker pull mysten/zklogin:prover-a66971815c15ba10c699203c5e3826a18eabc4ee
 docker pull mysten/zklogin:prover-fe-a66971815c15ba10c699203c5e3826a18eabc4ee
 ```
 
-### 2. Download the Groth16 proving key zkey file
+### 2. Download the Groth16 proving .zkey file
 ```
 mkdir -p $HOME/data/
 cd $HOME/data/
@@ -76,6 +76,36 @@ Check if it's running (should return "pong"):
 ```
 curl http://localhost:5001/ping # from your server
 curl [EXTERNAL_IP_ADDRESS]:5001/ping # from the outside
+```
+
+### 5. Reverse proxy
+
+To avoid CORS issues when calling the ZK proving server from our webapp, we set up an Nginx reverse proxy.
+
+```
+# Install Nginx
+sudo apt update && sudo apt install -y nginx
+
+# Set up the new configuration
+echo 'server {
+    listen 80;
+
+    location / {
+        proxy_pass http://localhost:5001;  # `prover-fe` port
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+        # Add CORS headers
+        add_header Access-Control-Allow-Origin *;
+        add_header Access-Control-Allow-Methods "GET, POST, OPTIONS";
+        add_header Access-Control-Allow-Headers "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range";
+        add_header Access-Control-Expose-Headers "Content-Length,Content-Range";
+    }
+}' | sudo tee /etc/nginx/sites-available/default
+
+# Restart Nginx to apply changes
+sudo systemctl restart nginx
 ```
 
 ## Resources

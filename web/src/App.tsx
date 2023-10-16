@@ -11,7 +11,7 @@ import './App.less';
 
 /* Configuration (edit this section) */
 const NETWORK_NAME = 'devnet'; // TODO: support user choice
-const URL_ZK_PROVER = 'http://137.184.238.177:5001/v1';
+const URL_ZK_PROVER = 'http://137.184.238.177/v1';
 const CLIENT_ID_GOOGLE = '139697148457-3s1nc6h8an06f84do363lbc6j61i0vfo.apps.googleusercontent.com';
 const MAX_EPOCH = 2; // keep ephemeral keys active for this many Sui epochs from now (1 epoch ~= 24h)
 
@@ -94,7 +94,7 @@ async function completeZkLogin() {
         salt: userSalt.toString(),
         keyClaimName: 'sub',
     };
-    const zkProofResponse = await fetch(proxy(URL_ZK_PROVER), {
+    const zkProofResponse = await fetch(URL_ZK_PROVER, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -103,8 +103,6 @@ async function completeZkLogin() {
     });
     console.log('zkProofResponse:', zkProofResponse);
 }
-
-const proxy = (url: string) => 'https://cors-proxy.fringe.zone/' + url;
 
 /* State management via local storage */
 
