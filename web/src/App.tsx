@@ -1,5 +1,3 @@
-import { useEffect } from 'react';
-
 import { SuiClient, getFullnodeUrl } from '@mysten/sui.js/client';
 import { Ed25519Keypair } from '@mysten/sui.js/keypairs/ed25519';
 import {
@@ -8,8 +6,14 @@ import {
     jwtToAddress,
 } from '@mysten/zklogin';
 import { toBigIntBE } from 'bigint-buffer';
-
+import { useEffect } from 'react';
 import './App.less';
+
+/* Configuration (edit this section) */
+const NETWORK_NAME = 'devnet'; // TODO: support user choice
+const URL_ZK_PROVER = 'http://137.184.238.177:5001/v1';
+const CLIENT_ID_GOOGLE = '139697148457-3s1nc6h8an06f84do363lbc6j61i0vfo.apps.googleusercontent.com';
+const MAX_EPOCH = 2; // keep ephemeral keys active for this many Sui epochs (1 epoch ~= 24h)
 
 export const App: React.FC = () =>
 {
@@ -34,10 +38,10 @@ async function beginZkLogin() {
     // Create a nonce
     // https://docs.sui.io/build/zk_login#set-up-oauth-flow
     const suiClient = new SuiClient({
-        url: getFullnodeUrl('devnet'), // TODO: support user choice
+        url: getFullnodeUrl(NETWORK_NAME),
     });
     const { epoch } = await suiClient.getLatestSuiSystemState();
-    const maxEpoch = Number(epoch) + 2; // the ephemeral key will be active for 2 epochs from now
+    const maxEpoch = Number(epoch) + MAX_EPOCH; // the ephemeral key will be active for 2 epochs from now
     const ephemeralKeyPair = new Ed25519Keypair();
     const ephemeralPublicKey = toBigIntBE(Buffer.from(ephemeralKeyPair.getPublicKey().toSuiBytes())).toString()
     const randomness = generateRandomness();
@@ -57,9 +61,9 @@ async function beginZkLogin() {
     // Start OAuth flow with the OpenID provider
     // https://docs.sui.io/build/zk_login#configure-a-developer-account-with-openid-provider
     const urlParams = new URLSearchParams({
-        client_id: '139697148457-3s1nc6h8an06f84do363lbc6j61i0vfo.apps.googleusercontent.com',
+        client_id: CLIENT_ID_GOOGLE,
         nonce: nonce,
-        redirect_uri: 'http://localhost:1234',
+        redirect_uri: window.location.origin,
         response_type: 'id_token',
         scope: 'openid',
     });
@@ -98,7 +102,7 @@ async function completeZkLogin() {
         salt: userSalt.toString(),
         keyClaimName: 'sub',
     };
-    const zkProofResponse = await fetch(proxy('http://137.184.238.177:5001/v1'), {
+    const zkProofResponse = await fetch(proxy(URL_ZK_PROVER), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
