@@ -13,7 +13,7 @@ import './App.less';
 const NETWORK_NAME = 'devnet'; // TODO: support user choice
 const URL_ZK_PROVER = 'http://137.184.238.177:5001/v1';
 const CLIENT_ID_GOOGLE = '139697148457-3s1nc6h8an06f84do363lbc6j61i0vfo.apps.googleusercontent.com';
-const MAX_EPOCH = 2; // keep ephemeral keys active for this many Sui epochs (1 epoch ~= 24h)
+const MAX_EPOCH = 2; // keep ephemeral keys active for this many Sui epochs from now (1 epoch ~= 24h)
 
 export const App: React.FC = () =>
 {
@@ -28,12 +28,6 @@ export const App: React.FC = () =>
     );
 }
 
-type LocalStorageZkLoginData = {
-    maxEpoch: number;
-    randomness: string;
-    ephemeralPublicKey: string;
-}
-
 async function beginZkLogin() {
     // Create a nonce
     // https://docs.sui.io/build/zk_login#set-up-oauth-flow
@@ -41,24 +35,20 @@ async function beginZkLogin() {
         url: getFullnodeUrl(NETWORK_NAME),
     });
     const { epoch } = await suiClient.getLatestSuiSystemState();
-    const maxEpoch = Number(epoch) + MAX_EPOCH; // the ephemeral key will be active for 2 epochs from now
+    const maxEpoch = Number(epoch) + MAX_EPOCH; // the ephemeral key will be valid for MAX_EPOCH from now
+    const randomness = generateRandomness();
     const ephemeralKeyPair = new Ed25519Keypair();
     const ephemeralPublicKey = toBigIntBE(Buffer.from(ephemeralKeyPair.getPublicKey().toSuiBytes())).toString()
-    const randomness = generateRandomness();
     const nonce = generateNonce(ephemeralKeyPair.getPublicKey(), maxEpoch, randomness);
-    console.debug('maxEpoch:', maxEpoch);
-    console.debug('randomness:', randomness.toString());
-    console.debug('ephemeralPublicKey:', ephemeralPublicKey);
 
-    // Set local storage so completeZkLogin() can use it after the page reload
-    const data: LocalStorageZkLoginData =  {
+    // Save data to local storage so completeZkLogin() can use it after the redirect
+    saveBeginZkLoginData({
         maxEpoch,
         randomness: randomness.toString(),
-        ephemeralPublicKey
-    };
-    localStorage.setItem('polymedia.zklogin', JSON.stringify(data))
+        ephemeralPublicKey,
+    });
 
-    // Start OAuth flow with the OpenID provider
+    // Start the OAuth flow with the OpenID provider
     // https://docs.sui.io/build/zk_login#configure-a-developer-account-with-openid-provider
     const urlParams = new URLSearchParams({
         client_id: CLIENT_ID_GOOGLE,
@@ -72,7 +62,7 @@ async function beginZkLogin() {
 }
 
 async function completeZkLogin() {
-    // Get the user's Sui address
+    // Get a Sui address for the user
     // https://docs.sui.io/build/zk_login#get-the-users-sui-address
     const urlFragment = window.location.hash.substring(1);
     const urlParams = new URLSearchParams(urlFragment);
@@ -82,22 +72,24 @@ async function completeZkLogin() {
         return;
     }
     const userSalt = BigInt('129390038577185583942388216820280642146'); // TODO
-    console.debug('userSalt:', userSalt.toString());
     const userAddr = jwtToAddress(jwt, userSalt);
+    console.debug('userSalt:', userSalt.toString());
     console.debug('userAddr:', userAddr);
 
-    // Get the zero-knowledge proof
-    // https://docs.sui.io/build/zk_login#get-the-zero-knowledge-proof
-    const dataRaw = localStorage.getItem('polymedia.zklogin');
-    if (!dataRaw) {
+    // Load data from local storage which beginZkLogin() created before the redirect
+    const zkLoginData = loadBeginZkLoginData();
+    if (!zkLoginData) {
         console.warn('[completeZkLogin] missing local storage data');
         return;
     }
-    const data: LocalStorageZkLoginData = JSON.parse(dataRaw);
+    clearBeginZkLoginData();
+
+    // Get the zero-knowledge proof
+    // https://docs.sui.io/build/zk_login#get-the-zero-knowledge-proof
     const zkProofRequestParams =  {
-        maxEpoch: data.maxEpoch,
-        extendedEphemeralPublicKey: data.ephemeralPublicKey,
-        jwtRandomness: data.randomness,
+        maxEpoch: zkLoginData.maxEpoch,
+        jwtRandomness: zkLoginData.randomness,
+        extendedEphemeralPublicKey: zkLoginData.ephemeralPublicKey,
         jwt,
         salt: userSalt.toString(),
         keyClaimName: 'sub',
@@ -113,3 +105,30 @@ async function completeZkLogin() {
 }
 
 const proxy = (url: string) => 'https://cors-proxy.fringe.zone/' + url;
+
+/* State management via local storage */
+
+type BeginZkLoginData = {
+    maxEpoch: number;
+    randomness: string;
+    ephemeralPublicKey: string;
+}
+
+const beginZkLoginKey = 'polymedia.zklogin';
+
+function saveBeginZkLoginData(data: BeginZkLoginData) {
+    localStorage.setItem(beginZkLoginKey, JSON.stringify(data))
+}
+
+function loadBeginZkLoginData(): BeginZkLoginData|null {
+    const dataRaw = localStorage.getItem(beginZkLoginKey);
+    if (!dataRaw) {
+        return null;
+    }
+    const data: BeginZkLoginData = JSON.parse(dataRaw);
+    return data;
+}
+
+function clearBeginZkLoginData(): void {
+    localStorage.removeItem(beginZkLoginKey);
+}
