@@ -22,6 +22,7 @@
     "dependencies": {
         "@mysten/sui.js": "^0.43.3",
         "@mysten/zklogin": "^0.1.8",
+        "bigint-buffer": "^1.1.5",
         "react": "^18.2.0",
         "react-dom": "^18.2.0"
     },

@@ -24,9 +24,9 @@ pnpm install
 pnpm serve
 ```
 
-## ZK proving server
+## Zero-Knowledge proving server
 
-A ZK proving service is required to generate a ZK proof for each ephemeral key pair.
+A back-end service is required to generate a ZK proof for each ephemeral key pair.
 
 https://docs.sui.io/build/zk_login#run-the-proving-service-in-your-backend
 
