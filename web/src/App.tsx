@@ -14,7 +14,7 @@ import { decodeJwt } from 'jose';
 import { useEffect, useState } from 'react';
 import './App.less';
 
-/* Configuration (edit this section) */
+/* Configuration (edit these constants) */
 const URL_ZK_PROVER = 'http://137.184.238.177/v1';
 const CLIENT_ID_GOOGLE = '139697148457-3s1nc6h8an06f84do363lbc6j61i0vfo.apps.googleusercontent.com';
 const MAX_EPOCH = 2; // keep ephemeral keys active for this many Sui epochs from now (1 epoch ~= 24h)
@@ -60,7 +60,7 @@ async function beginZkLogin() {
     const nonce = generateNonce(ephemeralKeyPair.getPublicKey(), maxEpoch, randomness);
 
     // Save data to local storage so completeZkLogin() can use it after the redirect
-    saveBeginZkLoginData({
+    saveSetupData({
         maxEpoch,
         randomness: randomness.toString(),
         ephemeralPublicKey: toBigIntBE(Buffer.from(ephemeralKeyPair.getPublicKey().toSuiBytes())).toString(),
@@ -103,12 +103,12 @@ async function completeZkLogin() {
     console.debug('userAddr:', userAddr);
 
     // Load and clear data from local storage which beginZkLogin() created before the redirect
-    const zkLoginData = loadBeginZkLoginData();
-    if (!zkLoginData) {
+    const setupData = loadSetupData();
+    if (!setupData) {
         console.warn('[completeZkLogin] missing local storage data');
         return;
     }
-    clearBeginZkLoginData();
+    clearSetupData();
 
     // Get the zero-knowledge proof
     // https://docs.sui.io/build/zk_login#get-the-zero-knowledge-proof
@@ -118,9 +118,9 @@ async function completeZkLogin() {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            maxEpoch: zkLoginData.maxEpoch,
-            jwtRandomness: zkLoginData.randomness,
-            extendedEphemeralPublicKey: zkLoginData.ephemeralPublicKey,
+            maxEpoch: setupData.maxEpoch,
+            jwtRandomness: setupData.randomness,
+            extendedEphemeralPublicKey: setupData.ephemeralPublicKey,
             jwt,
             salt: userSalt.toString(),
             keyClaimName: 'sub',
@@ -143,19 +143,19 @@ async function completeZkLogin() {
     saveAccount({
         userAddr,
         zkProofs,
-        ephemeralPublicKey: zkLoginData.ephemeralPublicKey,
-        ephemeralPrivateKey: zkLoginData.ephemeralPrivateKey,
+        ephemeralPublicKey: setupData.ephemeralPublicKey,
+        ephemeralPrivateKey: setupData.ephemeralPrivateKey,
         userSalt: userSalt.toString(),
         sub: jwtPayload.sub,
         aud: typeof jwtPayload.aud === 'string' ? jwtPayload.aud : jwtPayload.aud[0],
-        maxEpoch: zkLoginData.maxEpoch,
+        maxEpoch: setupData.maxEpoch,
     });
 }
 
 // Assemble the zkLogin signature and submit the transaction
 // https://docs.sui.io/build/zk_login#assemble-the-zklogin-signature-and-submit-the-transaction
 async function submitTransaction(account: AccountData) {
-    // First, sign the transaction bytes with the ephemeral private key.
+    // Sign the transaction bytes with the ephemeral private key.
     const txb = new TransactionBlock();
     txb.setSender(account.userAddr);
     const ephemeralKeyPair = Ed25519Keypair.fromSecretKey(
@@ -166,8 +166,7 @@ async function submitTransaction(account: AccountData) {
         signer: ephemeralKeyPair,
     });
 
-    // Next, generate an Address Seed by combining userSalt, sub (subject ID) and aud (audience).
-    // You can now serialize the zkLogin signature by combining the ZK proof (inputs), the maxEpoch and the ephemeral signature (userSignature).
+    // Generate an address seed by combining userSalt, sub (subject ID), and aud (audience).
     const addressSeed = genAddressSeed(
         BigInt(account.userSalt),
         'sub',
@@ -175,55 +174,54 @@ async function submitTransaction(account: AccountData) {
         account.aud,
     ).toString();
 
+    // Serialize the zkLogin signature by combining the ZK proof (inputs), the maxEpoch,
+    // and the ephemeral signature (userSignature).
     const zkLoginSignature : SerializedSignature = getZkLoginSignature({
-       inputs: {
+        inputs: {
             ...account.zkProofs,
             addressSeed,
-       },
-       maxEpoch: account.maxEpoch,
-       userSignature,
+        },
+        maxEpoch: account.maxEpoch,
+        userSignature,
     });
 
-    // Finally, execute the transaction.
-    suiClient.executeTransactionBlock({
+    // Execute the transaction
+    const result = await suiClient.executeTransactionBlock({
         transactionBlock: bytes,
         signature: zkLoginSignature,
     });
+    console.debug(result);
 }
 
-/* State management via local storage */
+/* Local storage helpers */
 
-/* state: beginZkLoginData */
+const setupDataKey = 'polymedia.zklogin';
 
-type BeginZkLoginData = {
+type SetupData = {
     maxEpoch: number;
     randomness: string;
     ephemeralPublicKey: string,
     ephemeralPrivateKey: string,
 }
 
-const beginZkLoginKey = 'polymedia.zklogin';
-
-function saveBeginZkLoginData(data: BeginZkLoginData) {
-    localStorage.setItem(beginZkLoginKey, JSON.stringify(data))
+function saveSetupData(data: SetupData) {
+    localStorage.setItem(setupDataKey, JSON.stringify(data))
 }
 
-function loadBeginZkLoginData(): BeginZkLoginData|null {
-    const dataRaw = localStorage.getItem(beginZkLoginKey);
+function loadSetupData(): SetupData|null {
+    const dataRaw = localStorage.getItem(setupDataKey);
     if (!dataRaw) {
         return null;
     }
-    const data: BeginZkLoginData = JSON.parse(dataRaw);
+    const data: SetupData = JSON.parse(dataRaw);
     return data;
 }
 
-function clearBeginZkLoginData(): void {
-    localStorage.removeItem(beginZkLoginKey);
+function clearSetupData(): void {
+    localStorage.removeItem(setupDataKey);
 }
 
-/* state: accounts */
-
-const accountsKey = 'polymedia.accounts';
+const accountDataKey = 'polymedia.accounts';
 
 type AccountData = {
     userAddr: string,
@@ -239,12 +237,11 @@ type AccountData = {
 function saveAccount(data: AccountData): void {
     const accounts = loadAccounts();
     accounts.push(data);
-    localStorage.setItem(accountsKey, JSON.stringify(accounts))
+    localStorage.setItem(accountDataKey, JSON.stringify(accounts));
 }
 
-
 function loadAccounts(): AccountData[] {
-    const dataRaw = localStorage.getItem(accountsKey);
+    const dataRaw = localStorage.getItem(accountDataKey);
     if (!dataRaw) {
         return [];
     }
