@@ -1,19 +1,17 @@
 # Sui zkLogin demo
 
-A webapp to test zkLogin on Sui + instructions for how to run your own ZK proving server.
-
-Live site: https://zklogin-demo.polymedia.app
+An end-to-end example of Sui zkLogin including: web front-end, ZK proving service, and salt service.
 
 Official docs: https://docs.sui.io/build/zk_login
 
 ## Webapp
 
-The webapp demonstrates Sui zkLogin with various OpenID providers: Google, Facebook, Twitch.
+The webapp lets users create a Sui zkLogin address and send a transaction with various OpenID providers: Google, Facebook (TODO), Twitch (TODO).
 
-When you click "log in with X provider", this webapp: // TODO
+When the user click "log in with X provider", this webapp: // TODO
 - Creates an ephemeral key pair.
 - Prompts the user to complete the OAuth login flow.
-- Obtains a zero-knowledge proof from the ZK proving server.
+- Obtains a zero-knowledge proof from the ZK proving service.
 - ...
 
 ### Local development
@@ -24,7 +22,7 @@ pnpm install
 pnpm serve
 ```
 
-## ZK proving server
+## ZK proving service
 
 A back-end service is required to generate a zero-knowledge proof for each ephemeral key pair.
 
@@ -78,9 +76,26 @@ curl http://localhost:5001/ping # from your server
 curl [EXTERNAL_IP_ADDRESS]:5001/ping # from the outside
 ```
 
-### 5. Reverse proxy
+### 5. Salt service
 
-To avoid CORS issues when calling the ZK proving server from our webapp, we set up an Nginx reverse proxy.
+A demo salt service (not fit for production) that you can run on your server.
+
+#### Build the Docker image
+```
+git clone https://github.com/juzybits/polymedia-zklogin-demo.git
+cd polymedia-zklogin-demo/salt/
+docker build -t salt-service .
+```
+
+#### Run the `salt-service`
+```
+docker run -d -p 5002:5002 salt-service
+```
+
+### 6. Reverse proxy
+
+To avoid CORS issues when calling the ZK proving service and the salt service from the webapp,
+we set up an Nginx reverse proxy.
 
 ```
 # Install Nginx
@@ -90,8 +105,21 @@ sudo apt update && sudo apt install -y nginx
 echo 'server {
     listen 80;
 
-    location / {
-        proxy_pass http://localhost:5001;  # `prover-fe` port
+    location /prover-fe/ {
+        proxy_pass http://localhost:5001/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+        # Add CORS headers
+        add_header Access-Control-Allow-Origin *;
+        add_header Access-Control-Allow-Methods "GET, POST, OPTIONS";
+        add_header Access-Control-Allow-Headers "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range";
+        add_header Access-Control-Expose-Headers "Content-Length,Content-Range";
+    }
+
+    location /salt/ {
+        proxy_pass http://localhost:5002/;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;

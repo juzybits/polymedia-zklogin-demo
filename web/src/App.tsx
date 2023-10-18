@@ -15,7 +15,8 @@ import { useEffect, useState } from 'react';
 import './App.less';
 
 /* Configuration (edit these constants) */
-const URL_ZK_PROVER = 'http://137.184.238.177/v1';
+const URL_ZK_PROVER = 'http://137.184.238.177/prover-fe/v1';
+const URL_SALT_SERVICE = 'http://137.184.238.177/salt/get-salt';
 const CLIENT_ID_GOOGLE = '139697148457-3s1nc6h8an06f84do363lbc6j61i0vfo.apps.googleusercontent.com';
 const MAX_EPOCH = 2; // keep ephemeral keys active for this many Sui epochs from now (1 epoch ~= 24h)
 

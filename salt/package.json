@@ -1,0 +1,15 @@
+{
+    "private": true,
+    "version": "0.1.0",
+    "name": "@polymedia/zklogin-demo-salt-service",
+    "description": "Backend service that exposes an endpoint that returns a unique salt for each user consistently.",
+    "main": "salt-service.js",
+    "scripts": {
+        "start": "node salt-service.js"
+    },
+    "dependencies": {
+        "big-integer": "^1.6.51",
+        "body-parser": "^1.20.2",
+        "express": "^4.18.2"
+    }
+}
