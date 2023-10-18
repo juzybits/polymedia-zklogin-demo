@@ -98,7 +98,22 @@ async function completeZkLogin() {
 
     // Get a Sui address for the user
     // https://docs.sui.io/build/zk_login#get-the-users-sui-address
-    const userSalt = BigInt('129390038577185583942388216820280642146'); // TODO
+    const saltResponse: any = await fetch(URL_SALT_SERVICE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jwt }),
+    })
+    .then(res => {
+        return res.json();
+    })
+    .catch(error => {
+        console.warn('[completeZkLogin] failed to get user salt:', error);
+        return null;
+    });
+    if (!saltResponse) {
+        return;
+    }
+    const userSalt = BigInt(saltResponse.salt);
     const userAddr = jwtToAddress(jwt, userSalt);
     console.debug('userSalt:', userSalt.toString());
     console.debug('userAddr:', userAddr);
@@ -115,9 +130,7 @@ async function completeZkLogin() {
     // https://docs.sui.io/build/zk_login#get-the-zero-knowledge-proof
     const zkProofs = await fetch(URL_ZK_PROVER, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             maxEpoch: setupData.maxEpoch,
             jwtRandomness: setupData.randomness,
@@ -128,7 +141,6 @@ async function completeZkLogin() {
         }),
     })
     .then(res => {
-        console.log('zkProofResponse:', res);
         return res.json();
     })
     .catch(error => {
