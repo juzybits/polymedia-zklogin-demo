@@ -86,7 +86,6 @@ async function completeZkLogin() {
     const urlFragment = window.location.hash.substring(1);
     const urlParams = new URLSearchParams(urlFragment);
     const jwt = urlParams.get('id_token');
-    console.debug('jwt:', jwt);
     if (!jwt) {
         return;
     }
@@ -115,8 +114,6 @@ async function completeZkLogin() {
     }
     const userSalt = BigInt(saltResponse.salt);
     const userAddr = jwtToAddress(jwt, userSalt);
-    console.debug('userSalt:', userSalt.toString());
-    console.debug('userAddr:', userAddr);
 
     // Load and clear data from local storage which beginZkLogin() created before the redirect
     const setupData = loadSetupData();
@@ -128,17 +125,19 @@ async function completeZkLogin() {
 
     // Get the zero-knowledge proof
     // https://docs.sui.io/build/zk_login#get-the-zero-knowledge-proof
+    const payload = JSON.stringify({
+        maxEpoch: setupData.maxEpoch,
+        jwtRandomness: setupData.randomness,
+        extendedEphemeralPublicKey: setupData.ephemeralPublicKey,
+        jwt,
+        salt: userSalt.toString(),
+        keyClaimName: 'sub',
+    }, null, 2);
+    console.debug('[completeZkLogin] Requesting ZK proof with:', payload);
     const zkProofs = await fetch(URL_ZK_PROVER, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            maxEpoch: setupData.maxEpoch,
-            jwtRandomness: setupData.randomness,
-            extendedEphemeralPublicKey: setupData.ephemeralPublicKey,
-            jwt,
-            salt: userSalt.toString(),
-            keyClaimName: 'sub',
-        }),
+        body: payload,
     })
     .then(res => {
         return res.json();
