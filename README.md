@@ -157,6 +157,9 @@ https://github.com/MystenLabs/sui/blob/main/apps/wallet/src/background/accounts/
 sui-zk-wallet | @ronanyeah
 https://github.com/ronanyeah/sui-zk-wallet
 
+zklogin-demo | @Scale3-Labs
+https://github.com/Scale3-Labs/zklogin-demo
+
 ### Articles
 
 zkLogin Best Practices and Business Considerations for Builders
