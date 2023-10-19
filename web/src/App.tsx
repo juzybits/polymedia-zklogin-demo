@@ -31,6 +31,8 @@ const accountDataKey = 'zklogin-demo.accounts';
 
 /* Types */
 
+type OpenIdProvider = 'google'; // TODO: add Facebook and Twitch
+
 type SetupData = {
     provider: OpenIdProvider,
     maxEpoch: number;
@@ -38,8 +40,6 @@ type SetupData = {
     ephemeralPublicKey: string,
     ephemeralPrivateKey: string,
 }
-
-type OpenIdProvider = 'google'; // TODO: add Facebook and Twitch
 
 type AccountData = {
     provider: OpenIdProvider;
@@ -135,6 +135,12 @@ export const App: React.FC = () =>
             return;
         }
         clearSetupData();
+        for (const account of accounts) {
+            if (userAddr === account.userAddr) {
+                console.warn('[completeZkLogin] already logged in with this account');
+                return;
+            }
+        }
 
         // Get the zero-knowledge proof
         // https://docs.sui.io/build/zk_login#get-the-zero-knowledge-proof
@@ -264,9 +270,9 @@ export const App: React.FC = () =>
                 {accounts.map(account =>
                     <div className='account' key={account.userAddr}>
                         <div className='account-details'>
-                            <div>provider: {account.provider}</div>
-                            <div>userAddr: {shortenAddress(account.userAddr)}</div>
-                            <div>sub: {account.sub}</div>
+                            <div>Provider: {account.provider}</div>
+                            <div>Sui address: {shortenAddress(account.userAddr)}</div>
+                            <div>User ID (sub): {account.sub}</div>
                         </div>
                         <button onClick={() => submitTransaction(account)}>
                             Send transaction
@@ -280,5 +286,5 @@ export const App: React.FC = () =>
 }
 
 function shortenAddress(address: string): string {
-    return '0x' + address.slice(2, 6) + '..' + address.slice(-4);
+    return '0x' + address.slice(2, 8) + '...' + address.slice(-6);
 }
