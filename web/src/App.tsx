@@ -13,17 +13,12 @@ import { toBigIntBE } from 'bigint-buffer';
 import { decodeJwt } from 'jose';
 import { useEffect, useState } from 'react';
 import './App.less';
+import config from './config.json';
 
-/* Configuration (edit these constants) */
-const URL_ZK_PROVER = 'http://137.184.238.177/prover-fe/v1';
-const URL_SALT_SERVICE = 'http://137.184.238.177/salt/get-salt';
-const CLIENT_ID_GOOGLE = '139697148457-3s1nc6h8an06f84do363lbc6j61i0vfo.apps.googleusercontent.com';
-const CLIENT_ID_TWITCH = 'qlzo1i6l5wqtil21kittecxw9kxbts';
-const CLIENT_ID_FACEBOOK = '1349076739370285';
 const MAX_EPOCH = 2; // keep ephemeral keys active for this many Sui epochs from now (1 epoch ~= 24h)
 
 const suiClient = new SuiClient({
-    url: getFullnodeUrl('devnet'), // TODO: support network choice
+    url: getFullnodeUrl('devnet'),
 });
 
 /* Local storage keys */
@@ -96,7 +91,7 @@ export const App: React.FC = () =>
             case 'google': {
                 const urlParams = new URLSearchParams({
                     ...urlParamsBase,
-                    client_id: CLIENT_ID_GOOGLE,
+                    client_id: config.CLIENT_ID_GOOGLE,
                 });
                 loginUrl = `https://accounts.google.com/o/oauth2/v2/auth?${urlParams}`;
                 break;
@@ -104,7 +99,7 @@ export const App: React.FC = () =>
             case 'twitch': {
                 const urlParams = new URLSearchParams({
                     ...urlParamsBase,
-                    client_id: CLIENT_ID_TWITCH,
+                    client_id: config.CLIENT_ID_TWITCH,
                     force_verify: 'true',
                     lang: 'en',
                     login_type: 'login',
@@ -115,7 +110,7 @@ export const App: React.FC = () =>
             case 'facebook': {
                 const urlParams = new URLSearchParams({
                     ...urlParamsBase,
-                    client_id: CLIENT_ID_FACEBOOK,
+                    client_id: config.CLIENT_ID_FACEBOOK,
                 });
                 loginUrl = `https://www.facebook.com/v18.0/dialog/oauth?${urlParams}`;
                 break;
@@ -140,7 +135,7 @@ export const App: React.FC = () =>
 
         // Get a Sui address for the user
         // https://docs.sui.io/build/zk_login#get-the-users-sui-address
-        const saltResponse: any = await fetch(URL_SALT_SERVICE, {
+        const saltResponse: any = await fetch(config.URL_SALT_SERVICE, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ jwt }),
@@ -183,7 +178,7 @@ export const App: React.FC = () =>
             keyClaimName: 'sub',
         }, null, 2);
         console.debug('[completeZkLogin] Requesting ZK proof with:', payload);
-        const zkProofs = await fetch(URL_ZK_PROVER, {
+        const zkProofs = await fetch(config.URL_ZK_PROVER, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: payload,

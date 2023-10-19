@@ -1,21 +1,18 @@
 # Sui zkLogin demo
 
-An end-to-end example of Sui zkLogin including: web front-end, ZK proving service, and salt service.
+An end-to-end Sui zkLogin example: web front-end + ZK proving service + salt service.
 
 Official docs: https://docs.sui.io/build/zk_login
 
 ## Webapp
 
-The webapp lets users create a Sui zkLogin address and send a transaction with various OpenID providers: Google, Twitch, Facebook.
-
-When the user click "log in with X provider", this webapp: // TODO
-- Creates an ephemeral key pair.
-- Prompts the user to complete the OAuth login flow.
-- Obtains a zero-knowledge proof from the ZK proving service.
-- ...
+The webapp lets users create a Sui zkLogin address and send a devnet transaction with various OpenID providers: Google, Twitch, Facebook.
 
 ### Local development
 
+- Create a Google/Twitch/Facebook app: https://docs.sui.io/build/zk_login#configure-a-developer-account-with-openid-provider
+- Copy `web/config.example.json` into `web/config.json` and modify it.
+- Run the app locally:
 ```
 cd web/
 pnpm install
@@ -78,7 +75,7 @@ curl [EXTERNAL_IP_ADDRESS]:5001/ping # from the outside
 
 ### 5. Salt service
 
-A demo salt service (not fit for production) that you can run on your server.
+A demo salt service (not fit for production) that you can run on your Linux server.
 
 #### Build the Docker image
 ```
