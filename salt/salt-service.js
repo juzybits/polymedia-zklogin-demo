@@ -25,6 +25,10 @@ app.post('/get-salt', (req, res) => {
     res.json({ salt });
 });
 
+app.get('/ping', (req, res) => {
+    res.status(200).send('pong\n');
+});
+
 app.listen(PORT, () => {
     console.log(`Salt service running on http://localhost:${PORT}`);
 });

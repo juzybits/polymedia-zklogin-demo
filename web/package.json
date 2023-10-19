@@ -3,7 +3,7 @@
     "version": "0.1.0",
     "name": "@polymedia/zklogin-demo",
     "author": "@juzybits (https://polymedia.app)",
-    "description": "A webapp to test zkLogin on Sui",
+    "description": "Sui zkLogin end-to-end demo implementation and tutorial",
     "license": "Apache-2.0",
     "repository": {
         "type": "git",
