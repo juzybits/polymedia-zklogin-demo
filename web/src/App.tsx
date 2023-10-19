@@ -18,6 +18,8 @@ import './App.less';
 const URL_ZK_PROVER = 'http://137.184.238.177/prover-fe/v1';
 const URL_SALT_SERVICE = 'http://137.184.238.177/salt/get-salt';
 const CLIENT_ID_GOOGLE = '139697148457-3s1nc6h8an06f84do363lbc6j61i0vfo.apps.googleusercontent.com';
+const CLIENT_ID_TWITCH = 'qlzo1i6l5wqtil21kittecxw9kxbts';
+const CLIENT_ID_FACEBOOK = '1349076739370285';
 const MAX_EPOCH = 2; // keep ephemeral keys active for this many Sui epochs from now (1 epoch ~= 24h)
 
 const suiClient = new SuiClient({
@@ -31,7 +33,7 @@ const accountDataKey = 'zklogin-demo.accounts';
 
 /* Types */
 
-type OpenIdProvider = 'google'; // TODO: add Facebook and Twitch
+type OpenIdProvider = 'google' | 'twitch' | 'facebook';
 
 type SetupData = {
     provider: OpenIdProvider,
@@ -63,7 +65,7 @@ export const App: React.FC = () =>
 
     /* zkLogin logic */
 
-    async function beginZkLogin() {
+    async function beginZkLogin(provider: OpenIdProvider) {
         // Create a nonce
         // https://docs.sui.io/build/zk_login#set-up-oauth-flow
         const { epoch } = await suiClient.getLatestSuiSystemState();
@@ -74,7 +76,7 @@ export const App: React.FC = () =>
 
         // Save data to local storage so completeZkLogin() can use it after the redirect
         saveSetupData({
-            provider: 'google',
+            provider,
             maxEpoch,
             randomness: randomness.toString(),
             ephemeralPublicKey: toBigIntBE(Buffer.from(ephemeralKeyPair.getPublicKey().toSuiBytes())).toString(),
@@ -83,14 +85,42 @@ export const App: React.FC = () =>
 
         // Start the OAuth flow with the OpenID provider
         // https://docs.sui.io/build/zk_login#configure-a-developer-account-with-openid-provider
-        const urlParams = new URLSearchParams({
-            client_id: CLIENT_ID_GOOGLE,
+        const urlParamsBase = {
             nonce: nonce,
             redirect_uri: window.location.origin,
             response_type: 'id_token',
             scope: 'openid',
-        });
-        const loginUrl = `https://accounts.google.com/o/oauth2/v2/auth?${urlParams}`;
+        };
+        let loginUrl: string;
+        switch (provider) {
+            case 'google': {
+                const urlParams = new URLSearchParams({
+                    ...urlParamsBase,
+                    client_id: CLIENT_ID_GOOGLE,
+                });
+                loginUrl = `https://accounts.google.com/o/oauth2/v2/auth?${urlParams}`;
+                break;
+            }
+            case 'twitch': {
+                const urlParams = new URLSearchParams({
+                    ...urlParamsBase,
+                    client_id: CLIENT_ID_TWITCH,
+                    force_verify: 'true',
+                    lang: 'en',
+                    login_type: 'login',
+                });
+                loginUrl = `https://id.twitch.tv/oauth2/authorize?${urlParams}`;
+                break;
+            }
+            case 'facebook': {
+                const urlParams = new URLSearchParams({
+                    ...urlParamsBase,
+                    client_id: CLIENT_ID_FACEBOOK,
+                });
+                loginUrl = `https://www.facebook.com/v18.0/dialog/oauth?${urlParams}`;
+                break;
+            }
+        }
         window.location.replace(loginUrl);
     }
 
@@ -137,7 +167,7 @@ export const App: React.FC = () =>
         clearSetupData();
         for (const account of accounts) {
             if (userAddr === account.userAddr) {
-                console.warn('[completeZkLogin] already logged in with this account');
+                console.warn(`[completeZkLogin] already logged in with this ${setupData.provider} account`);
                 return;
             }
         }
@@ -264,7 +294,9 @@ export const App: React.FC = () =>
 
     return (
         <div>
-            <button onClick={beginZkLogin}>Google login</button>
+            <button onClick={() => beginZkLogin('google')}>Google</button>
+            <button onClick={() => beginZkLogin('twitch')}>Twitch</button>
+            <button onClick={() => beginZkLogin('facebook')}>Facebook</button>
             <div id='accounts'>
                 <h2>Accounts:</h2>
                 {accounts.map(account =>

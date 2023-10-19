@@ -6,7 +6,7 @@ Official docs: https://docs.sui.io/build/zk_login
 
 ## Webapp
 
-The webapp lets users create a Sui zkLogin address and send a transaction with various OpenID providers: Google, Facebook (TODO), Twitch (TODO).
+The webapp lets users create a Sui zkLogin address and send a transaction with various OpenID providers: Google, Twitch, Facebook.
 
 When the user click "log in with X provider", this webapp: // TODO
 - Creates an ephemeral key pair.
