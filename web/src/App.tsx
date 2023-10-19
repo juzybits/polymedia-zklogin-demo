@@ -127,6 +127,7 @@ export const App: React.FC = () =>
         if (!jwt) {
             return;
         }
+        window.history.replaceState(null, '', window.location.pathname); // remove URL fragment
         const jwtPayload = decodeJwt(jwt);
         if (!jwtPayload.sub || !jwtPayload.aud) {
             console.warn('[completeZkLogin] missing jwt.sub or jwt.aud');
