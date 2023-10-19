@@ -20,8 +20,8 @@
         "deploy-prod": "pnpm build && wrangler pages publish dist/ --project-name polymedia-zklogin-demo --branch main"
     },
     "dependencies": {
-        "@mysten/sui.js": "^0.43.3",
-        "@mysten/zklogin": "^0.1.8",
+        "@mysten/sui.js": "^0.44.0",
+        "@mysten/zklogin": "^0.3.2",
         "bigint-buffer": "^1.1.5",
         "jose": "^4.15.4",
         "react": "^18.2.0",
