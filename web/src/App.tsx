@@ -288,28 +288,39 @@ export const App: React.FC = () =>
 
     /* HTML */
 
+    const openIdProviders: OpenIdProvider[] = ['google', 'twitch', 'facebook'];
     return (
-        <div>
-            <button onClick={() => beginZkLogin('google')}>Google</button>
-            <button onClick={() => beginZkLogin('twitch')}>Twitch</button>
-            <button onClick={() => beginZkLogin('facebook')}>Facebook</button>
-            <div id='accounts'>
-                <h2>Accounts:</h2>
-                {accounts.map(account =>
-                    <div className='account' key={account.userAddr}>
-                        <div className='account-details'>
-                            <div>Provider: {account.provider}</div>
-                            <div>Sui address: {shortenAddress(account.userAddr)}</div>
-                            <div>User ID (sub): {account.sub}</div>
-                        </div>
-                        <button onClick={() => submitTransaction(account)}>
-                            Send transaction
-                        </button>
-                        <hr/>
-                    </div>
-                )}
-            </div>
+    <div id='page'>
+        <h1>Sui zkLogin demo</h1>
+        <div id='login-buttons' className='section'>
+            <h2>Log in:</h2>
+            {openIdProviders.map(provider =>
+                <button
+                    className={`login-btn ${provider}`}
+                    onClick={() => beginZkLogin(provider)}
+                    key={provider}
+                >
+                    {provider}
+                </button>
+            )}
         </div>
+        <div id='accounts' className='section'>
+            <h2>Accounts:</h2>
+            {accounts.map(account =>
+                <div className='account' key={account.userAddr}>
+                    <div className='account-details'>
+                        <div>Provider: {account.provider}</div>
+                        <div>Sui address: {shortenAddress(account.userAddr)}</div>
+                        <div>User ID (sub): {account.sub}</div>
+                    </div>
+                    <button onClick={() => submitTransaction(account)}>
+                        Send transaction
+                    </button>
+                    <hr/>
+                </div>
+            )}
+        </div>
+    </div>
     );
 }
 
