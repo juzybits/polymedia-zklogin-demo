@@ -1,5 +1,7 @@
 # Sui zkLogin demo
 
+![Sui zkLogin demo](./assets/banner.png)
+
 An end-to-end Sui zkLogin example, including: web front-end + ZK proving service + salt service.
 
 It shows how to use Google/Twitch/Facebook to create a Sui zkLogin address and send a transaction.

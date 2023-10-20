@@ -399,7 +399,6 @@ const Modal: React.FC<{
     );
 }
 
-
 function shortenAddress(address: string): string {
     return '0x' + address.slice(2, 8) + '...' + address.slice(-6);
 }
