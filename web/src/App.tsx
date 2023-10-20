@@ -9,6 +9,7 @@ import {
     getZkLoginSignature,
     jwtToAddress,
 } from '@mysten/zklogin';
+import { linkToExplorer } from '@polymedia/webutils';
 import { toBigIntBE } from 'bigint-buffer';
 import { decodeJwt } from 'jose';
 import { useEffect, useState } from 'react';
@@ -333,12 +334,17 @@ export const App: React.FC = () =>
             <h2>Accounts:</h2>
             {accounts.map(acct => {
                 const balance = balances.get(acct.userAddr);
+                const explorerLink = linkToExplorer(NETWORK, 'address', acct.userAddr);
                 return (
                 <div className='account' key={acct.userAddr}>
                     <div>
                         <label className={`provider ${acct.provider}`}>{acct.provider}</label>
                     </div>
-                    <div>Address: {shortenAddress(acct.userAddr)}</div>
+                    <div>
+                        Address: <a target='_blank' rel='noopener' href={explorerLink}>
+                            {shortenAddress(acct.userAddr)}
+                        </a>
+                    </div>
                     <div>User ID: {acct.sub}</div>
                     <div>Balance: {balance}</div>
                     <button
