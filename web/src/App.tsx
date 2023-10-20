@@ -30,7 +30,7 @@ const accountDataKey = 'zklogin-demo.accounts';
 
 /* Types */
 
-type OpenIdProvider = 'google' | 'twitch' | 'facebook';
+type OpenIdProvider = 'Google' | 'Twitch' | 'Facebook';
 
 type SetupData = {
     provider: OpenIdProvider,
@@ -56,6 +56,7 @@ export const App: React.FC = () =>
 {
     const [accounts, setAccounts] = useState<AccountData[]>(loadAccounts());
     const [balances, setBalances] = useState<Map<string, number>>(new Map()); // Map<Sui address, SUI balance>
+    const [modalContent, setModalContent] = useState<string>('');
 
     useEffect(() => {
         completeZkLogin();
@@ -68,6 +69,8 @@ export const App: React.FC = () =>
     /* zkLogin logic */
 
     async function beginZkLogin(provider: OpenIdProvider) {
+        setModalContent(`🔑 Logging in with ${provider}...`);
+
         // Create a nonce
         // https://docs.sui.io/build/zk_login#set-up-oauth-flow
         const { epoch } = await suiClient.getLatestSuiSystemState();
@@ -95,7 +98,7 @@ export const App: React.FC = () =>
         };
         let loginUrl: string;
         switch (provider) {
-            case 'google': {
+            case 'Google': {
                 const urlParams = new URLSearchParams({
                     ...urlParamsBase,
                     client_id: config.CLIENT_ID_GOOGLE,
@@ -103,7 +106,7 @@ export const App: React.FC = () =>
                 loginUrl = `https://accounts.google.com/o/oauth2/v2/auth?${urlParams}`;
                 break;
             }
-            case 'twitch': {
+            case 'Twitch': {
                 const urlParams = new URLSearchParams({
                     ...urlParamsBase,
                     client_id: config.CLIENT_ID_TWITCH,
@@ -114,7 +117,7 @@ export const App: React.FC = () =>
                 loginUrl = `https://id.twitch.tv/oauth2/authorize?${urlParams}`;
                 break;
             }
-            case 'facebook': {
+            case 'Facebook': {
                 const urlParams = new URLSearchParams({
                     ...urlParamsBase,
                     client_id: config.CLIENT_ID_FACEBOOK,
@@ -186,6 +189,7 @@ export const App: React.FC = () =>
             keyClaimName: 'sub',
         }, null, 2);
         console.debug('[completeZkLogin] Requesting ZK proof with:', payload);
+        setModalContent('⏳ Requesting ZK proof. This can take a few seconds...')
         const zkProofs = await fetch(config.URL_ZK_PROVER, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -198,12 +202,13 @@ export const App: React.FC = () =>
             console.warn('[completeZkLogin] failed to get ZK proof:', error);
             return null;
         });
+        setModalContent('');
 
         if (!zkProofs) {
             return;
         }
 
-        // Save data to local storage so submitTransaction() can use it
+        // Save data to local storage so sendTransaction() can use it
         saveAccount({
             provider: setupData.provider,
             userAddr,
@@ -219,7 +224,9 @@ export const App: React.FC = () =>
 
     // Assemble the zkLogin signature and submit the transaction
     // https://docs.sui.io/build/zk_login#assemble-the-zklogin-signature-and-submit-the-transaction
-    async function submitTransaction(account: AccountData) {
+    async function sendTransaction(account: AccountData) {
+        setModalContent('🚀 Sending transaction...');
+
         // Sign the transaction bytes with the ephemeral private key.
         const txb = new TransactionBlock();
         txb.setSender(account.userAddr);
@@ -254,8 +261,13 @@ export const App: React.FC = () =>
         const result = await suiClient.executeTransactionBlock({
             transactionBlock: bytes,
             signature: zkLoginSignature,
+            options: {
+                showEffects: true,
+            },
         });
-        console.debug(result);
+        console.debug('[sendTransaction] SuiTransactionBlockResponse:', result);
+        fetchBalances([account]);
+        setModalContent('');
     }
 
     // Get the SUI balance for each account
@@ -311,9 +323,10 @@ export const App: React.FC = () =>
 
     /* HTML */
 
-    const openIdProviders: OpenIdProvider[] = ['google', 'twitch', 'facebook'];
+    const openIdProviders: OpenIdProvider[] = ['Google', 'Twitch', 'Facebook'];
     return (
     <div id='page'>
+        <Modal content={modalContent} />
         <div id='network-indicator'>
             <label>{NETWORK}</label>
         </div>
@@ -350,7 +363,7 @@ export const App: React.FC = () =>
                     <button
                         className={`btn-send ${!balance ? 'disabled' : ''}`}
                         disabled={!balance}
-                        onClick={() => submitTransaction(acct)}
+                        onClick={() => sendTransaction(acct)}
                     >
                         Send transaction
                     </button>
@@ -362,6 +375,27 @@ export const App: React.FC = () =>
     </div>
     );
 }
+
+// Modal copied from https://github.com/juzybits/polymedia-timezones
+const Modal: React.FC<{
+    content: React.ReactNode;
+}> = ({
+    content,
+}) =>
+{
+    if (!content) {
+        return null;
+    }
+
+    return (
+        <div className='modal-background'>
+            <div className='modal-content'>
+                {content}
+            </div>
+        </div>
+    );
+}
+
 
 function shortenAddress(address: string): string {
     return '0x' + address.slice(2, 8) + '...' + address.slice(-6);
