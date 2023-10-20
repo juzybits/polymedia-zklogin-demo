@@ -15,10 +15,11 @@ import { useEffect, useState } from 'react';
 import './App.less';
 import config from './config.json';
 
+const NETWORK = 'devnet';
 const MAX_EPOCH = 2; // keep ephemeral keys active for this many Sui epochs from now (1 epoch ~= 24h)
 
 const suiClient = new SuiClient({
-    url: getFullnodeUrl('devnet'),
+    url: getFullnodeUrl(NETWORK),
 });
 
 /* Local storage keys */
@@ -312,6 +313,9 @@ export const App: React.FC = () =>
     const openIdProviders: OpenIdProvider[] = ['google', 'twitch', 'facebook'];
     return (
     <div id='page'>
+        <div id='network-indicator'>
+            <label>{NETWORK}</label>
+        </div>
         <h1>Sui zkLogin demo</h1>
         <div id='login-buttons' className='section'>
             <h2>Log in:</h2>
