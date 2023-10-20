@@ -327,6 +327,9 @@ export const App: React.FC = () =>
     return (
     <div id='page'>
         <Modal content={modalContent} />
+        <a id='polymedia-logo' href='https://polymedia.app' target='_blank' rel='noopener'>
+                <img src='https://assets.polymedia.app/img/all/logo-nomargin-transparent-512x512.webp' alt='Polymedia logo' />
+            </a>
         <div id='network-indicator'>
             <label>{NETWORK}</label>
         </div>
