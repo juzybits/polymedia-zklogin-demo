@@ -14,8 +14,10 @@ import { toBigIntBE } from 'bigint-buffer';
 import { decodeJwt } from 'jose';
 import { useEffect, useRef, useState } from 'react';
 import './App.less';
-import config from './config.json';
 
+/* Configuration */
+
+import config from './config.json'; // copy and modify config.example.json with your own values
 const NETWORK = 'devnet';
 const MAX_EPOCH = 2; // keep ephemeral keys active for this many Sui epochs from now (1 epoch ~= 24h)
 
@@ -33,11 +35,11 @@ const accountDataKey = 'zklogin-demo.accounts';
 type OpenIdProvider = 'Google' | 'Twitch' | 'Facebook';
 
 type SetupData = {
-    provider: OpenIdProvider,
+    provider: OpenIdProvider;
     maxEpoch: number;
     randomness: string;
-    ephemeralPublicKey: string,
-    ephemeralPrivateKey: string,
+    ephemeralPublicKey: string;
+    ephemeralPrivateKey: string;
 }
 
 type AccountData = {
@@ -54,7 +56,7 @@ type AccountData = {
 
 export const App: React.FC = () =>
 {
-    const accounts = useRef(loadAccounts()); // useRef() instead of useState() because of setInterval()
+    const accounts = useRef<AccountData[]>(loadAccounts()); // useRef() instead of useState() because of setInterval()
     const [balances, setBalances] = useState<Map<string, number>>(new Map()); // Map<Sui address, SUI balance>
     const [modalContent, setModalContent] = useState<string>('');
 
@@ -68,11 +70,11 @@ export const App: React.FC = () =>
 
     /* zkLogin logic */
 
+    // https://docs.sui.io/build/zk_login#set-up-oauth-flow
     async function beginZkLogin(provider: OpenIdProvider) {
         setModalContent(`🔑 Logging in with ${provider}...`);
 
         // Create a nonce
-        // https://docs.sui.io/build/zk_login#set-up-oauth-flow
         const { epoch } = await suiClient.getLatestSuiSystemState();
         const maxEpoch = Number(epoch) + MAX_EPOCH; // the ephemeral key will be valid for MAX_EPOCH from now
         const randomness = generateRandomness();
@@ -89,7 +91,6 @@ export const App: React.FC = () =>
         });
 
         // Start the OAuth flow with the OpenID provider
-        // https://docs.sui.io/build/zk_login#configure-a-developer-account-with-openid-provider
         const urlParamsBase = {
             nonce: nonce,
             redirect_uri: window.location.origin,
@@ -131,6 +132,7 @@ export const App: React.FC = () =>
 
     async function completeZkLogin() {
         // Validate the JWT
+        // https://docs.sui.io/build/zk_login#decoding-jwt
         const urlFragment = window.location.hash.substring(1);
         const urlParams = new URLSearchParams(urlFragment);
         const jwt = urlParams.get('id_token');
@@ -145,6 +147,7 @@ export const App: React.FC = () =>
         }
 
         // Get a Sui address for the user
+        // https://docs.sui.io/build/zk_login#user-salt-management
         // https://docs.sui.io/build/zk_login#get-the-users-sui-address
         const saltResponse: any = await fetch(config.URL_SALT_SERVICE, {
             method: 'POST',
@@ -152,10 +155,11 @@ export const App: React.FC = () =>
             body: JSON.stringify({ jwt }),
         })
         .then(res => {
+            console.debug('[completeZkLogin] salt service success');
             return res.json();
         })
         .catch(error => {
-            console.warn('[completeZkLogin] failed to get user salt:', error);
+            console.warn('[completeZkLogin] salt service error:', error);
             return null;
         });
         if (!saltResponse) {
@@ -180,6 +184,7 @@ export const App: React.FC = () =>
 
         // Get the zero-knowledge proof
         // https://docs.sui.io/build/zk_login#get-the-zero-knowledge-proof
+
         const payload = JSON.stringify({
             maxEpoch: setupData.maxEpoch,
             jwtRandomness: setupData.randomness,
@@ -188,21 +193,26 @@ export const App: React.FC = () =>
             salt: userSalt.toString(),
             keyClaimName: 'sub',
         }, null, 2);
+
         console.debug('[completeZkLogin] Requesting ZK proof with:', payload);
         setModalContent('⏳ Requesting ZK proof. This can take a few seconds...')
+
         const zkProofs = await fetch(config.URL_ZK_PROVER, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: payload,
         })
         .then(res => {
+            console.debug('[completeZkLogin] ZK proving service success');
             return res.json();
         })
         .catch(error => {
-            console.warn('[completeZkLogin] failed to get ZK proof:', error);
+            console.warn('[completeZkLogin] ZK proving service error:', error);
             return null;
+        })
+        .finally(() => {
+            setModalContent('');
         });
-        setModalContent('');
 
         if (!zkProofs) {
             return;
@@ -222,7 +232,7 @@ export const App: React.FC = () =>
         });
     }
 
-    // Assemble the zkLogin signature and submit the transaction
+    // Assemble a zkLogin signature and submit a transaction
     // https://docs.sui.io/build/zk_login#assemble-the-zklogin-signature-and-submit-the-transaction
     async function sendTransaction(account: AccountData) {
         setModalContent('🚀 Sending transaction...');
@@ -258,16 +268,24 @@ export const App: React.FC = () =>
         });
 
         // Execute the transaction
-        const result = await suiClient.executeTransactionBlock({
+        await suiClient.executeTransactionBlock({
             transactionBlock: bytes,
             signature: zkLoginSignature,
             options: {
                 showEffects: true,
             },
+        })
+        .then(result => {
+            console.debug('[sendTransaction] executeTransactionBlock response:', result);
+            fetchBalances([account]);
+        })
+        .catch(error => {
+            console.warn('[sendTransaction] executeTransactionBlock failed:', error);
+            return null;
+        })
+        .finally(() => {
+            setModalContent('');
         });
-        console.debug('[sendTransaction] SuiTransactionBlockResponse:', result);
-        fetchBalances([account]);
-        setModalContent('');
     }
 
     // Get the SUI balance for each account
@@ -291,7 +309,7 @@ export const App: React.FC = () =>
         );
     }
 
-    /* Local storage + React state */
+    /* Local storage */
 
     function saveSetupData(data: SetupData) {
         localStorage.setItem(setupDataKey, JSON.stringify(data))
@@ -333,8 +351,8 @@ export const App: React.FC = () =>
     <div id='page'>
         <Modal content={modalContent} />
         <a id='polymedia-logo' href='https://polymedia.app' target='_blank' rel='noopener'>
-                <img src='https://assets.polymedia.app/img/all/logo-nomargin-transparent-512x512.webp' alt='Polymedia logo' />
-            </a>
+            <img src='https://assets.polymedia.app/img/all/logo-nomargin-transparent-512x512.webp' alt='Polymedia logo' />
+        </a>
         <div id='network-indicator'>
             <label>{NETWORK}</label>
         </div>
