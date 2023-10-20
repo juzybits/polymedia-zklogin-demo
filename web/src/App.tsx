@@ -296,7 +296,7 @@ export const App: React.FC = () =>
             <h2>Log in:</h2>
             {openIdProviders.map(provider =>
                 <button
-                    className={`login-btn ${provider}`}
+                    className={`btn-login ${provider}`}
                     onClick={() => beginZkLogin(provider)}
                     key={provider}
                 >
@@ -306,14 +306,12 @@ export const App: React.FC = () =>
         </div>
         <div id='accounts' className='section'>
             <h2>Accounts:</h2>
-            {accounts.map(account =>
-                <div className='account' key={account.userAddr}>
-                    <div className='account-details'>
-                        <div>Provider: {account.provider}</div>
-                        <div>Sui address: {shortenAddress(account.userAddr)}</div>
-                        <div>User ID (sub): {account.sub}</div>
-                    </div>
-                    <button onClick={() => submitTransaction(account)}>
+            {accounts.map(acct =>
+                <div className='account' key={acct.userAddr}>
+                    <div><label className={`provider ${acct.provider}`}>{acct.provider}</label></div>
+                    <div>Address: {shortenAddress(acct.userAddr)}</div>
+                    <div>User ID: {acct.sub}</div>
+                    <button className='btn-send' onClick={() => submitTransaction(acct)}>
                         Send transaction
                     </button>
                     <hr/>

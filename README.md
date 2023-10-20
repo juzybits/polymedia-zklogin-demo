@@ -197,6 +197,9 @@ https://github.com/ronanyeah/sui-zk-wallet
 zklogin-demo | @Scale3-Labs<br/>
 https://github.com/Scale3-Labs/zklogin-demo
 
+suidouble-zklogin | @suidouble<br/>
+https://github.com/suidouble/suidouble-zklogin
+
 ### Articles
 
 zkLogin Best Practices and Business Considerations for Builders<br/>

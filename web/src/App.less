@@ -37,7 +37,7 @@ h1 {
 
 #login-buttons {
     gap: 10px;
-    .login-btn {
+    .btn-login {
         width: 100%;
         max-width: 300px;
         border-radius: 12px;
@@ -50,6 +50,37 @@ h1 {
         &:hover {
             cursor: pointer;
             filter: brightness(1.3);
+        }
+    }
+}
+
+#accounts {
+    .account {
+        width: 100%;
+        > div {
+            word-break: break-all;
+            padding: 0.2rem 0;
+            font-family: monospace;
+            font-size: 1.1em;
+        }
+        label.provider {
+            display: inline-block;
+            color: white;
+            border-radius: 6px;
+            padding: 0.15rem 0.4rem;
+        }
+        .btn-send {
+            border: 2px solid black;
+            color: black;
+            background-color: white;
+            font-size: 1rem;
+            font-weight: bold;
+            padding: 0.3rem 0.8rem;
+            margin: 0.5rem 0 1rem;
+            &:hover {
+                cursor: pointer;
+                background-color: gold;
+            }
         }
     }
 }
