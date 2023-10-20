@@ -2,7 +2,7 @@
 
 ![Sui zkLogin demo](./assets/banner.png)
 
-An end-to-end Sui zkLogin example, including: web front-end + ZK proving service + salt service.
+A Sui zkLogin end-to-end implementation and tutorial, including: web front-end + ZK proving service + salt service.
 
 It shows how to use Google/Twitch/Facebook to create a Sui zkLogin address and send a transaction.
 
@@ -14,7 +14,7 @@ Official docs: https://docs.sui.io/build/zk_login
 
 ## OpenID providers
 
-You'll need to create a developer account on Google/Twitch/Facebook and then create an app from which you can obtain the `client_id` that will be used as a parameter in the login URL.
+You'll need to create a developer account on Google/Twitch/Facebook. Then, create an "app" from which you can obtain the Client ID to populate your `web/src/config.json`.
 
 Developer consoles: [Google](https://console.cloud.google.com/home/dashboard), [Twitch](https://dev.twitch.tv/console), [Facebook](https://developers.facebook.com/apps/).
 
@@ -62,8 +62,7 @@ docker pull mysten/zklogin:prover-fe-a66971815c15ba10c699203c5e3826a18eabc4ee
 
 #### 2. Download the Groth16 proving .zkey file
 ```
-mkdir -p $HOME/data/
-cd $HOME/data/
+mkdir -p $HOME/data/ && cd $HOME/data/
 GIT_LFS_SKIP_SMUDGE=1 git clone https://github.com/sui-foundation/zklogin-ceremony-contributions.git
 cd zklogin-ceremony-contributions/
 git lfs pull --include "zkLogin.zkey"
@@ -91,7 +90,7 @@ docker run -d \
   mysten/zklogin:prover-fe-a66971815c15ba10c699203c5e3826a18eabc4ee
 ```
 
-Check if it's running (should return `pong`):
+Check that it's running correctly (should return `pong`):
 ```
 curl localhost:5001/ping # from the server
 curl [EXTERNAL_IP_ADDRESS]:5001/ping # from the outside
@@ -101,23 +100,26 @@ curl [EXTERNAL_IP_ADDRESS]:5001/ping # from the outside
 
 A salt service returns a unique user salt from a JWT token.
 
+(Alternatively, salts can be managed on the client side.)
+
 Docs: https://docs.sui.io/build/zk_login#user-salt-management
 
 [salt/](./salt/) is a demo salt service (not fit for production) that you can run on your server:
 
 #### 1. Build the Docker image
 ```
+mkdir -p $HOME/data/ && cd $HOME/data/
 git clone https://github.com/juzybits/polymedia-zklogin-demo.git
 cd polymedia-zklogin-demo/salt/
 docker build -t salt-service .
 ```
 
-#### 2. Run the `salt-service`
+#### 2. Run `salt-service`
 ```
 docker run -d -p 5002:5002 salt-service
 ```
 
-Check if it's running (should return `pong`):
+Check that it's running correctly (should return `pong`):
 ```
 curl localhost:5002/ping # from the server
 curl [EXTERNAL_IP_ADDRESS]:5002/ping # from the outside
@@ -128,11 +130,15 @@ curl [EXTERNAL_IP_ADDRESS]:5002/ping # from the outside
 To avoid CORS issues when calling the ZK proving and salt services from the webapp,
 we set up an Nginx reverse proxy:
 
-```
-# Install Nginx
-sudo apt update && sudo apt install -y nginx
+#### 1. Install Nginx
 
-# Set up the new configuration
+```
+sudo apt install -y nginx
+```
+
+#### 2. Configure Nginx
+
+```
 echo 'server {
     listen 80;
 
@@ -151,16 +157,21 @@ echo 'server {
         proxy_pass http://localhost:5002/;
     }
 }' | sudo tee /etc/nginx/sites-available/default
+```
 
-# Restart Nginx to apply changes
+#### 3. Restart Nginx to apply changes
+
+```
 sudo systemctl restart nginx
 ```
 
-Check if you can reach the prover and salt services through the proxy:
+Check that you can reach the prover and salt services through the proxy:
 ```
 curl [EXTERNAL_IP_ADDRESS]/prover-fe/ping
 curl [EXTERNAL_IP_ADDRESS]/salt/ping
 ```
+
+These two URLs correspond with `URL_ZK_PROVER` and `URL_SALT_SERVICE` in your `web/src/config.json`.
 
 ## Common issues
 
@@ -182,25 +193,10 @@ https://docs.sui.io/build/zk_login
 Google OAuth 2.0 for Client-side Web Applications<br/>
 https://developers.google.com/identity/protocols/oauth2/javascript-implicit-flow
 
-### Video
+### Videos
 
 A Complete Guide to zkLogin: How it Works and How to Integrate | Joy Wang<br/>
 https://www.youtube.com/watch?v=Jk4mq5IOUYc
-
-### Code
-
-sui-wallet | @MystenLabs<br/>
-[sui/wallet/src/background/accounts/zklogin/ZkLoginAccount.ts](https://github.com/MystenLabs/sui/blob/main/apps/wallet/src/background/accounts/zklogin/ZkLoginAccount.ts)<br/>
-[sui/wallet/src/background/accounts/zklogin/utils.ts](https://github.com/MystenLabs/sui/blob/main/apps/wallet/src/background/accounts/zklogin/utils.ts)<br/>
-
-sui-zk-wallet | @ronanyeah<br/>
-https://github.com/ronanyeah/sui-zk-wallet
-
-zklogin-demo | @Scale3-Labs<br/>
-https://github.com/Scale3-Labs/zklogin-demo
-
-suidouble-zklogin | @suidouble<br/>
-https://github.com/suidouble/suidouble-zklogin
 
 ### Articles
 
@@ -214,3 +210,20 @@ https://blog.sui.io/zklogin-deep-dive/
 
 zkLogin Audit<br/>
 https://github.com/sui-foundation/security-audits/blob/main/zksecurity_zklogin-circuits.pdf
+
+### Code
+
+sui-wallet | @MystenLabs<br/>
+https://github.com/MystenLabs/sui/blob/main/apps/wallet/src/background/accounts/zklogin/
+
+chrome-extension | @EthosWallet<br/>
+https://github.com/EthosWallet/chrome-extension/tree/main/src/ui/app/components/zklogin/
+
+sui-zk-wallet | @ronanyeah<br/>
+https://github.com/ronanyeah/sui-zk-wallet
+
+zklogin-demo | @Scale3-Labs<br/>
+https://github.com/Scale3-Labs/zklogin-demo
+
+suidouble-zklogin | @suidouble<br/>
+https://github.com/suidouble/suidouble-zklogin
