@@ -12,7 +12,7 @@ import {
 import { linkToExplorer } from '@polymedia/webutils';
 import { toBigIntBE } from 'bigint-buffer';
 import { decodeJwt } from 'jose';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './App.less';
 import config from './config.json';
 
@@ -54,15 +54,15 @@ type AccountData = {
 
 export const App: React.FC = () =>
 {
-    const [accounts, setAccounts] = useState<AccountData[]>(loadAccounts());
+    const accounts = useRef(loadAccounts()); // useRef() instead of useState() because of setInterval()
     const [balances, setBalances] = useState<Map<string, number>>(new Map()); // Map<Sui address, SUI balance>
     const [modalContent, setModalContent] = useState<string>('');
 
     useEffect(() => {
         completeZkLogin();
 
-        fetchBalances(accounts);
-        const interval = setInterval(() => fetchBalances(accounts), 6_000);
+        fetchBalances(accounts.current);
+        const interval = setInterval(() => fetchBalances(accounts.current), 6_000);
         return () => clearInterval(interval);
     }, []);
 
@@ -171,9 +171,9 @@ export const App: React.FC = () =>
             return;
         }
         clearSetupData();
-        for (const account of accounts) {
+        for (const account of accounts.current) {
             if (userAddr === account.userAddr) {
-                console.warn(`[completeZkLogin] already logged in with this ${setupData.provider} account`);
+                console.warn(`[completeZkLogin] already logged in with this ${setupData.provider} account`); // TODO: replace old with new
                 return;
             }
         }
@@ -281,9 +281,14 @@ export const App: React.FC = () =>
                 owner: account.userAddr,
                 coinType: '0x2::sui::SUI',
             });
-            newBalances.set(account.userAddr, +suiBalance.totalBalance/1_000_000_000);
+            newBalances.set(
+                account.userAddr,
+                +suiBalance.totalBalance/1_000_000_000
+            );
         }
-        setBalances(newBalances);
+        setBalances(prevBalances =>
+            new Map([...prevBalances, ...newBalances])
+        );
     }
 
     /* Local storage + React state */
@@ -306,9 +311,9 @@ export const App: React.FC = () =>
     }
 
     function saveAccount(account: AccountData): void {
-        const newAccounts = [account, ...accounts];
+        const newAccounts = [account, ...accounts.current];
         localStorage.setItem(accountDataKey, JSON.stringify(newAccounts));
-        setAccounts(newAccounts);
+        accounts.current = newAccounts;
         fetchBalances([account]);
     }
 
@@ -348,7 +353,7 @@ export const App: React.FC = () =>
         </div>
         <div id='accounts' className='section'>
             <h2>Accounts:</h2>
-            {accounts.map(acct => {
+            {accounts.current.map(acct => {
                 const balance = balances.get(acct.userAddr);
                 const explorerLink = linkToExplorer(NETWORK, 'address', acct.userAddr);
                 return (
@@ -362,7 +367,7 @@ export const App: React.FC = () =>
                         </a>
                     </div>
                     <div>User ID: {acct.sub}</div>
-                    <div>Balance: {balance}</div>
+                    <div>Balance: {typeof balance === 'undefined' ? '(loading)' : `${balance} SUI`}</div>
                     <button
                         className={`btn-send ${!balance ? 'disabled' : ''}`}
                         disabled={!balance}
