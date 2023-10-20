@@ -53,9 +53,14 @@ type AccountData = {
 export const App: React.FC = () =>
 {
     const [accounts, setAccounts] = useState<AccountData[]>(loadAccounts());
+    const [balances, setBalances] = useState<Map<string, number>>(new Map()); // Map<Sui address, SUI balance>
 
     useEffect(() => {
         completeZkLogin();
+
+        fetchBalances(accounts);
+        const interval = setInterval(() => fetchBalances(accounts), 6_000);
+        return () => clearInterval(interval);
     }, []);
 
     /* zkLogin logic */
@@ -251,7 +256,23 @@ export const App: React.FC = () =>
         console.debug(result);
     }
 
-    /* Local storage + React state helpers */
+    // Get the SUI balance for each account
+    async function fetchBalances(accounts: AccountData[]) {
+        if (accounts.length == 0) {
+            return;
+        }
+        const newBalances: Map<string, number> = new Map();
+        for (const account of accounts) {
+            const suiBalance = await suiClient.getBalance({
+                owner: account.userAddr,
+                coinType: '0x2::sui::SUI',
+            });
+            newBalances.set(account.userAddr, +suiBalance.totalBalance/1_000_000_000);
+        }
+        setBalances(newBalances);
+    }
+
+    /* Local storage + React state */
 
     function saveSetupData(data: SetupData) {
         localStorage.setItem(setupDataKey, JSON.stringify(data))
@@ -270,11 +291,11 @@ export const App: React.FC = () =>
         localStorage.removeItem(setupDataKey);
     }
 
-    function saveAccount(data: AccountData): void {
-        const accounts = loadAccounts();
-        accounts.push(data);
-        localStorage.setItem(accountDataKey, JSON.stringify(accounts));
-        setAccounts(prevAccounts => [data, ...prevAccounts]);
+    function saveAccount(account: AccountData): void {
+        const newAccounts = [account, ...accounts];
+        localStorage.setItem(accountDataKey, JSON.stringify(newAccounts));
+        setAccounts(newAccounts);
+        fetchBalances([account]);
     }
 
     function loadAccounts(): AccountData[] {
@@ -306,17 +327,27 @@ export const App: React.FC = () =>
         </div>
         <div id='accounts' className='section'>
             <h2>Accounts:</h2>
-            {accounts.map(acct =>
+            {accounts.map(acct => {
+                const balance = balances.get(acct.userAddr);
+                return (
                 <div className='account' key={acct.userAddr}>
-                    <div><label className={`provider ${acct.provider}`}>{acct.provider}</label></div>
+                    <div>
+                        <label className={`provider ${acct.provider}`}>{acct.provider}</label>
+                    </div>
                     <div>Address: {shortenAddress(acct.userAddr)}</div>
                     <div>User ID: {acct.sub}</div>
-                    <button className='btn-send' onClick={() => submitTransaction(acct)}>
+                    <div>Balance: {balance}</div>
+                    <button
+                        className={`btn-send ${!balance ? 'disabled' : ''}`}
+                        disabled={!balance}
+                        onClick={() => submitTransaction(acct)}
+                    >
                         Send transaction
                     </button>
                     <hr/>
                 </div>
-            )}
+                );
+            })}
         </div>
     </div>
     );
