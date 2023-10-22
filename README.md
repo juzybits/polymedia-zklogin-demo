@@ -171,7 +171,14 @@ curl [EXTERNAL_IP_ADDRESS]/prover-fe/ping
 curl [EXTERNAL_IP_ADDRESS]/salt/ping
 ```
 
-These two URLs correspond with `URL_ZK_PROVER` and `URL_SALT_SERVICE` in your `web/src/config.json`.
+#### 4. Update your webapp configuration
+
+Update your `web/src/config.json` as follows:
+
+```
+"URL_ZK_PROVER": "http://YOUR_SERVER_IP/prover-fe/v1",
+"URL_SALT_SERVICE": "http://YOUR_SERVER_IP/salt/get-salt",
+``````
 
 ## Common issues
 

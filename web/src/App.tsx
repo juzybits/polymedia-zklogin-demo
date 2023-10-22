@@ -18,6 +18,7 @@ import './App.less';
 /* Configuration */
 
 import config from './config.json'; // copy and modify config.example.json with your own values
+
 const NETWORK = 'devnet';
 const MAX_EPOCH = 2; // keep ephemeral keys active for this many Sui epochs from now (1 epoch ~= 24h)
 
