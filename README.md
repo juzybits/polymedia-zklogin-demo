@@ -43,7 +43,7 @@ pnpm serve
 
 You'll need to set up a Linux machine somewhere and install Docker in it.
 
-Specs: I used Ubuntu on DigitalOcean, and the cheapest droplet that was powerful enough has 2 CPUs and 2 GB of memory and costs $18/month, but can only generate 1 proof at a time.
+Specs: I used Ubuntu on DigitalOcean, and from my experience I recommend a droplet with at least 4 GB of memory.
 
 ### ZK proving service
 
@@ -212,6 +212,9 @@ https://blog.sui.io/zklogin-best-practices-considerations/
 
 zkLogin Demystified: Exploring Sui's Cutting-Edge Authentication<br/>
 https://blog.sui.io/zklogin-deep-dive/
+
+Set Up a Proving Service for zkLogin<br/>
+https://blog.sui.io/proving-service-zklogin/
 
 ### Other
 
