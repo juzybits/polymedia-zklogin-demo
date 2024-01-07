@@ -1,6 +1,6 @@
 # Sui zkLogin demo
 
-![Sui zkLogin demo](./assets/banner.png)
+![Sui zkLogin demo](https://assets.polymedia.app/img/zklogin/open-graph.png)
 
 A Sui zkLogin end-to-end implementation and tutorial, including: web front-end + ZK proving service + salt service.
 
