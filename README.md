@@ -10,7 +10,7 @@ The code is meant to be as simple as possible to demonstrate how to put all the 
 
 Your feedback and pull requests are welcome!
 
-Official docs: https://docs.sui.io/build/zk_login
+Official docs: https://docs.sui.io/concepts/cryptography/zklogin
 
 ## OpenID providers
 
@@ -18,7 +18,7 @@ You'll need to create a developer account on Google/Twitch/Facebook. Then, creat
 
 Developer consoles: [Google](https://console.cloud.google.com/home/dashboard), [Twitch](https://dev.twitch.tv/console), [Facebook](https://developers.facebook.com/apps/).
 
-Docs: https://docs.sui.io/build/zk_login#configure-a-developer-account-with-openid-provider
+Docs: https://docs.sui.io/concepts/cryptography/zklogin#configure-a-developer-account-with-openid-provider
 
 ## Front-end
 
@@ -49,7 +49,7 @@ Specs: I used Ubuntu on DigitalOcean, and from my experience I recommend a dropl
 
 A service that generates a zero-knowledge proof for each ephemeral key pair.
 
-Docs: https://docs.sui.io/build/zk_login#get-the-zero-knowledge-proof
+Docs: https://docs.sui.io/concepts/cryptography/zklogin#get-the-zero-knowledge-proof
 
 Here is how to run the service using the Docker images provided by Mysten Labs:
 
@@ -102,7 +102,7 @@ A salt service returns a unique user salt from a JWT token.
 
 (Alternatively, salts can be managed on the client side.)
 
-Docs: https://docs.sui.io/build/zk_login#user-salt-management
+Docs: https://docs.sui.io/concepts/cryptography/zklogin#user-salt-management
 
 [salt/](./salt/) is a demo salt service (not fit for production) that you can run on your server:
 
@@ -195,7 +195,7 @@ If you get this error when requesting a ZK proof from your server, you'll need t
 ### Docs
 
 Official Docs<br/>
-https://docs.sui.io/build/zk_login
+https://docs.sui.io/concepts/cryptography/zklogin
 
 Google OAuth 2.0 for Client-side Web Applications<br/>
 https://developers.google.com/identity/protocols/oauth2/javascript-implicit-flow
