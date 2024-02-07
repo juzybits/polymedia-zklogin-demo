@@ -9,7 +9,7 @@ import {
     getZkLoginSignature,
     jwtToAddress,
 } from '@mysten/zklogin';
-import { linkToExplorer } from '@polymedia/webutils';
+import { makeSuiExplorerUrl } from '@polymedia/suits';
 import { toBigIntBE } from 'bigint-buffer';
 import { decodeJwt } from 'jose';
 import { useEffect, useRef, useState } from 'react';
@@ -374,7 +374,7 @@ export const App: React.FC = () =>
             <h2>Accounts:</h2>
             {accounts.current.map(acct => {
                 const balance = balances.get(acct.userAddr);
-                const explorerLink = linkToExplorer(NETWORK, 'address', acct.userAddr);
+                const explorerLink = makeSuiExplorerUrl(NETWORK, 'address', acct.userAddr);
                 return (
                 <div className='account' key={acct.userAddr}>
                     <div>
