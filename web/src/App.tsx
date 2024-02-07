@@ -148,11 +148,19 @@ export const App: React.FC = () =>
         // Get a Sui address for the user
         // https://docs.sui.io/build/zk_login#user-salt-management
         // https://docs.sui.io/build/zk_login#get-the-users-sui-address
-        const saltResponse: any = await fetch(config.URL_SALT_SERVICE, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ jwt }),
-        })
+
+        const requestOptions = config.URL_SALT_SERVICE === '/dummy-salt-server.json'
+            ? // dev, using a JSON file (same salt all the time)
+            {
+                method: 'GET',
+            }
+            : // prod, using an actual salt server
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ jwt }),
+            };
+        const saltResponse: any = await fetch(config.URL_SALT_SERVICE, requestOptions)
         .then(res => {
             console.debug('[completeZkLogin] salt service success');
             return res.json();
