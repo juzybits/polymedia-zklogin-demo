@@ -33,7 +33,7 @@ const accountDataKey = 'zklogin-demo.accounts';
 
 /* Types */
 
-type OpenIdProvider = 'Google' | 'Twitch' | 'Facebook';
+type OpenIdProvider = 'Google' | 'Twitch' | 'Facebook';
 
 type SetupData = {
     provider: OpenIdProvider;
@@ -66,7 +66,7 @@ export const App: React.FC = () =>
 
         fetchBalances(accounts.current);
         const interval = setInterval(() => fetchBalances(accounts.current), 6_000);
-        return () => clearInterval(interval);
+        return () => {clearInterval(interval)};
     }, []);
 
     /* zkLogin logic */
@@ -351,7 +351,7 @@ export const App: React.FC = () =>
     return (
     <div id='page'>
         <Modal content={modalContent} />
-        <a id='polymedia-logo' href='https://polymedia.app' target='_blank' rel='noopener'>
+        <a id='polymedia-logo' href='https://polymedia.app' target='_blank' rel='noopener noreferrer'>
             <img src='https://assets.polymedia.app/img/all/logo-nomargin-transparent-512x512.webp' alt='Polymedia logo' />
         </a>
         <div id='network-indicator'>
@@ -363,7 +363,7 @@ export const App: React.FC = () =>
             {openIdProviders.map(provider =>
                 <button
                     className={`btn-login ${provider}`}
-                    onClick={() => beginZkLogin(provider)}
+                    onClick={() => {beginZkLogin(provider)} }
                     key={provider}
                 >
                     {provider}
@@ -381,7 +381,7 @@ export const App: React.FC = () =>
                         <label className={`provider ${acct.provider}`}>{acct.provider}</label>
                     </div>
                     <div>
-                        Address: <a target='_blank' rel='noopener' href={explorerLink}>
+                        Address: <a target='_blank' rel='noopener noreferrer' href={explorerLink}>
                             {shortenAddress(acct.userAddr)}
                         </a>
                     </div>
@@ -390,7 +390,7 @@ export const App: React.FC = () =>
                     <button
                         className={`btn-send ${!balance ? 'disabled' : ''}`}
                         disabled={!balance}
-                        onClick={() => sendTransaction(acct)}
+                        onClick={() => {sendTransaction(acct)}}
                     >
                         Send transaction
                     </button>
