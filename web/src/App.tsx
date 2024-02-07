@@ -70,7 +70,7 @@ export const App: React.FC = () =>
 
     /* zkLogin logic */
 
-    // https://docs.sui.io/build/zk_login#set-up-oauth-flow
+    // https://docs.sui.io/concepts/cryptography/zklogin#get-jwt-token
     async function beginZkLogin(provider: OpenIdProvider) {
         setModalContent(`🔑 Logging in with ${provider}...`);
 
@@ -131,7 +131,7 @@ export const App: React.FC = () =>
 
     async function completeZkLogin() {
         // Validate the JWT
-        // https://docs.sui.io/build/zk_login#decoding-jwt
+        // https://docs.sui.io/concepts/cryptography/zklogin#decoding-jwt
         const urlFragment = window.location.hash.substring(1);
         const urlParams = new URLSearchParams(urlFragment);
         const jwt = urlParams.get('id_token');
@@ -146,8 +146,8 @@ export const App: React.FC = () =>
         }
 
         // Get a Sui address for the user
-        // https://docs.sui.io/build/zk_login#user-salt-management
-        // https://docs.sui.io/build/zk_login#get-the-users-sui-address
+        // https://docs.sui.io/concepts/cryptography/zklogin#user-salt-management
+        // https://docs.sui.io/concepts/cryptography/zklogin#get-the-users-sui-address
 
         const requestOptions = config.URL_SALT_SERVICE === '/dummy-salt-server.json'
             ? // dev, using a JSON file (same salt all the time)
@@ -190,7 +190,7 @@ export const App: React.FC = () =>
         }
 
         // Get the zero-knowledge proof
-        // https://docs.sui.io/build/zk_login#get-the-zero-knowledge-proof
+        // https://docs.sui.io/concepts/cryptography/zklogin#get-the-zero-knowledge-proof
 
         const ephemeralKeyPair = keypairFromSecretKey(setupData.ephemeralPrivateKey);
         const ephemeralPublicKey = ephemeralKeyPair.getPublicKey();
@@ -241,7 +241,7 @@ export const App: React.FC = () =>
     }
 
     // Assemble a zkLogin signature and submit a transaction
-    // https://docs.sui.io/build/zk_login#assemble-the-zklogin-signature-and-submit-the-transaction
+    // https://docs.sui.io/concepts/cryptography/zklogin#assemble-the-zklogin-signature-and-submit-the-transaction
     async function sendTransaction(account: AccountData) {
         setModalContent('🚀 Sending transaction...');
 
