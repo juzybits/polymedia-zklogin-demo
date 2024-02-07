@@ -26,7 +26,7 @@ const suiClient = new SuiClient({
     url: getFullnodeUrl(NETWORK),
 });
 
-/* Local storage keys */
+/* Session storage keys */
 
 const setupDataKey = 'zklogin-demo.setup';
 const accountDataKey = 'zklogin-demo.accounts';
@@ -82,7 +82,7 @@ export const App: React.FC = () =>
         const ephemeralKeyPair = new Ed25519Keypair();
         const nonce = generateNonce(ephemeralKeyPair.getPublicKey(), maxEpoch, randomness);
 
-        // Save data to local storage so completeZkLogin() can use it after the redirect
+        // Save data to session storage so completeZkLogin() can use it after the redirect
         saveSetupData({
             provider,
             maxEpoch,
@@ -169,10 +169,10 @@ export const App: React.FC = () =>
         const userSalt = BigInt(saltResponse.salt);
         const userAddr = jwtToAddress(jwt, userSalt);
 
-        // Load and clear data from local storage which beginZkLogin() created before the redirect
+        // Load and clear data from session storage which beginZkLogin() created before the redirect
         const setupData = loadSetupData();
         if (!setupData) {
-            console.warn('[completeZkLogin] missing local storage data');
+            console.warn('[completeZkLogin] missing session storage data');
             return;
         }
         clearSetupData();
@@ -219,7 +219,7 @@ export const App: React.FC = () =>
             return;
         }
 
-        // Save data to local storage so sendTransaction() can use it
+        // Save data to session storage so sendTransaction() can use it
         saveAccount({
             provider: setupData.provider,
             userAddr,
@@ -310,14 +310,14 @@ export const App: React.FC = () =>
         );
     }
 
-    /* Local storage */
+    /* Session storage */
 
     function saveSetupData(data: SetupData) {
-        localStorage.setItem(setupDataKey, JSON.stringify(data))
+        sessionStorage.setItem(setupDataKey, JSON.stringify(data))
     }
 
     function loadSetupData(): SetupData|null {
-        const dataRaw = localStorage.getItem(setupDataKey);
+        const dataRaw = sessionStorage.getItem(setupDataKey);
         if (!dataRaw) {
             return null;
         }
@@ -326,18 +326,18 @@ export const App: React.FC = () =>
     }
 
     function clearSetupData(): void {
-        localStorage.removeItem(setupDataKey);
+        sessionStorage.removeItem(setupDataKey);
     }
 
     function saveAccount(account: AccountData): void {
         const newAccounts = [account, ...accounts.current];
-        localStorage.setItem(accountDataKey, JSON.stringify(newAccounts));
+        sessionStorage.setItem(accountDataKey, JSON.stringify(newAccounts));
         accounts.current = newAccounts;
         fetchBalances([account]);
     }
 
     function loadAccounts(): AccountData[] {
-        const dataRaw = localStorage.getItem(accountDataKey);
+        const dataRaw = sessionStorage.getItem(accountDataKey);
         if (!dataRaw) {
             return [];
         }
