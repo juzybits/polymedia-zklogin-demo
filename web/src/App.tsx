@@ -12,13 +12,13 @@ import {
     jwtToAddress,
 } from '@mysten/zklogin';
 import { makeSuiExplorerUrl } from '@polymedia/suits';
-import { decodeJwt } from 'jose';
 import { useEffect, useRef, useState } from 'react';
 import './App.less';
 
 /* Configuration */
 
 import config from './config.json'; // copy and modify config.example.json with your own values
+import { jwtDecode } from 'jwt-decode';
 
 const NETWORK = 'devnet';
 const MAX_EPOCH = 2; // keep ephemeral keys active for this many Sui epochs from now (1 epoch ~= 24h)
@@ -64,7 +64,7 @@ export const App: React.FC = () =>
         completeZkLogin();
 
         fetchBalances(accounts.current);
-        const interval = setInterval(() => fetchBalances(accounts.current), 6_000);
+        const interval = setInterval(() => fetchBalances(accounts.current), 5_000);
         return () => {clearInterval(interval)};
     }, []);
 
@@ -77,8 +77,8 @@ export const App: React.FC = () =>
         // Create a nonce
         const { epoch } = await suiClient.getLatestSuiSystemState();
         const maxEpoch = Number(epoch) + MAX_EPOCH; // the ephemeral key will be valid for MAX_EPOCH from now
-        const randomness = generateRandomness();
         const ephemeralKeyPair = new Ed25519Keypair();
+        const randomness = generateRandomness();
         const nonce = generateNonce(ephemeralKeyPair.getPublicKey(), maxEpoch, randomness);
 
         // Save data to session storage so completeZkLogin() can use it after the redirect
@@ -139,7 +139,7 @@ export const App: React.FC = () =>
             return;
         }
         window.history.replaceState(null, '', window.location.pathname); // remove URL fragment
-        const jwtPayload = decodeJwt(jwt);
+        const jwtPayload = jwtDecode(jwt);
         if (!jwtPayload.sub || !jwtPayload.aud) {
             console.warn('[completeZkLogin] missing jwt.sub or jwt.aud');
             return;
