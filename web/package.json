@@ -1,8 +1,9 @@
 {
     "private": true,
-    "version": "0.1.0",
+    "version": "0.0.0",
     "name": "@polymedia/zklogin-demo",
     "author": "@juzybits (https://polymedia.app)",
+    "homepage": "https://zklogin-demo.polymedia.app",
     "description": "Sui zkLogin end-to-end implementation and tutorial",
     "license": "Apache-2.0",
     "repository": {
@@ -11,10 +12,12 @@
     },
     "keywords": [],
     "scripts": {
-        "clean": "rm -rf .parcel-cache/ dist/",
-        "lint": "eslint ./src --ext .ts,.tsx",
-        "serve": "pnpm clean && parcel src/index.html",
-        "build": "pnpm clean && parcel build --no-source-maps src/index.html && cp src/static/* dist/"
+        "build": "tsc && vite build",
+        "deploy-dev": "pnpm build && wrangler pages deploy dist/ --project-name zklogin-demo --branch dev",
+        "deploy-prod": "pnpm build && wrangler pages deploy dist/ --project-name zklogin-demo --branch main",
+        "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+        "preview": "pnpm build && vite preview",
+        "serve": "vite"
     },
     "dependencies": {
         "@mysten/sui.js": "^0.49.1",
@@ -26,17 +29,18 @@
         "react-dom": "^18.2.0"
     },
     "devDependencies": {
-        "@parcel/transformer-less": "^2.11.0",
         "@types/react": "^18.2.55",
         "@types/react-dom": "^18.2.19",
-        "@typescript-eslint/eslint-plugin": "^6.21.0",
-        "@typescript-eslint/parser": "^6.21.0",
-        "buffer": "^6.0.3",
-        "eslint": "^8.56.0",
-        "eslint-plugin-deprecation": "^2.0.0",
-        "events": "^3.3.0",
-        "parcel": "^2.11.0",
-        "process": "^0.11.10",
-        "react-devtools": "^4.28.5"
-    }
+        "@typescript-eslint/eslint-plugin": "latest",
+        "@typescript-eslint/parser": "latest",
+        "@vitejs/plugin-react-swc": "latest",
+        "eslint": "latest",
+        "eslint-plugin-react": "latest",
+        "eslint-plugin-react-hooks": "latest",
+        "eslint-plugin-react-refresh": "latest",
+        "less": "latest",
+        "typescript": "latest",
+        "vite": "latest"
+    },
+    "type": "module"
 }
