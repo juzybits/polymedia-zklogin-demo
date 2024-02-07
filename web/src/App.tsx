@@ -68,9 +68,12 @@ export const App: React.FC = () =>
         return () => {clearInterval(interval)};
     }, []);
 
-    /* zkLogin logic */
+    /* zkLogin end-to-end */
 
-    // https://docs.sui.io/concepts/cryptography/zklogin#get-jwt-token
+    /**
+     * Start the zkLogin process by getting a JWT token from an OpenID provider.
+     * https://docs.sui.io/concepts/cryptography/zklogin#get-jwt-token
+     */
     async function beginZkLogin(provider: OpenIdProvider) {
         setModalContent(`🔑 Logging in with ${provider}...`);
 
@@ -129,27 +132,40 @@ export const App: React.FC = () =>
         window.location.replace(loginUrl);
     }
 
-    async function completeZkLogin() {
-        // Validate the JWT
+    /**
+     * Complete the zkLogin process.
+     * It sends the JWT to the salt server to get a salt, then
+     * it derives the user address from the JWT and the salt, and finally
+     * it gets a zero-knowledge proof from the Mysten Labs proving service.
+     */
+    async function completeZkLogin()
+    {
+        // === Validate and decode the JWT that beginZkLogin() produced ===
         // https://docs.sui.io/concepts/cryptography/zklogin#decoding-jwt
+
+        // grab the JWT from the URL fragment (the '#...')
         const urlFragment = window.location.hash.substring(1);
         const urlParams = new URLSearchParams(urlFragment);
         const jwt = urlParams.get('id_token');
         if (!jwt) {
             return;
         }
-        window.history.replaceState(null, '', window.location.pathname); // remove URL fragment
+
+        // remove the URL fragment
+        window.history.replaceState(null, '', window.location.pathname);
+
+        // decode the JWT
         const jwtPayload = jwtDecode(jwt);
         if (!jwtPayload.sub || !jwtPayload.aud) {
             console.warn('[completeZkLogin] missing jwt.sub or jwt.aud');
             return;
         }
 
-        // Get a Sui address for the user
+        // === Get the salt ===
         // https://docs.sui.io/concepts/cryptography/zklogin#user-salt-management
-        // https://docs.sui.io/concepts/cryptography/zklogin#get-the-users-sui-address
 
-        const requestOptions = config.URL_SALT_SERVICE === '/dummy-salt-server.json'
+        const requestOptions =
+            config.URL_SALT_SERVICE === '/dummy-salt-server.json'
             ? // dev, using a JSON file (same salt all the time)
             {
                 method: 'GET',
@@ -160,22 +176,30 @@ export const App: React.FC = () =>
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ jwt }),
             };
-        const saltResponse: any = await fetch(config.URL_SALT_SERVICE, requestOptions)
-        .then(res => {
-            console.debug('[completeZkLogin] salt service success');
-            return res.json();
-        })
-        .catch(error => {
-            console.warn('[completeZkLogin] salt service error:', error);
-            return null;
-        });
+
+        const saltResponse: any =
+            await fetch(config.URL_SALT_SERVICE, requestOptions)
+            .then(res => {
+                console.debug('[completeZkLogin] salt service success');
+                return res.json();
+            })
+            .catch(error => {
+                console.warn('[completeZkLogin] salt service error:', error);
+                return null;
+            });
+
         if (!saltResponse) {
             return;
         }
+
         const userSalt = BigInt(saltResponse.salt);
+
+        // === Get a Sui address for the user ===
+        // https://docs.sui.io/concepts/cryptography/zklogin#get-the-users-sui-address
+
         const userAddr = jwtToAddress(jwt, userSalt);
 
-        // Load and clear data from session storage which beginZkLogin() created before the redirect
+        // === Load and clear the data which beginZkLogin() created before the redirect ===
         const setupData = loadSetupData();
         if (!setupData) {
             console.warn('[completeZkLogin] missing session storage data');
@@ -189,7 +213,7 @@ export const App: React.FC = () =>
             }
         }
 
-        // Get the zero-knowledge proof
+        // === Get the zero-knowledge proof ===
         // https://docs.sui.io/concepts/cryptography/zklogin#get-the-zero-knowledge-proof
 
         const ephemeralKeyPair = keypairFromSecretKey(setupData.ephemeralPrivateKey);
@@ -227,7 +251,7 @@ export const App: React.FC = () =>
             return;
         }
 
-        // Save data to session storage so sendTransaction() can use it
+        // === Save data to session storage so sendTransaction() can use it ===
         saveAccount({
             provider: setupData.provider,
             userAddr,
@@ -240,12 +264,14 @@ export const App: React.FC = () =>
         });
     }
 
-    // Assemble a zkLogin signature and submit a transaction
-    // https://docs.sui.io/concepts/cryptography/zklogin#assemble-the-zklogin-signature-and-submit-the-transaction
+    /**
+     * Assemble a zkLogin signature and submit a transaction
+     * https://docs.sui.io/concepts/cryptography/zklogin#assemble-the-zklogin-signature-and-submit-the-transaction
+     */
     async function sendTransaction(account: AccountData) {
         setModalContent('🚀 Sending transaction...');
 
-        // Sign the transaction bytes with the ephemeral private key.
+        // Sign the transaction bytes with the ephemeral private key
         const txb = new TransactionBlock();
         txb.setSender(account.userAddr);
 
@@ -255,7 +281,7 @@ export const App: React.FC = () =>
             signer: ephemeralKeyPair,
         });
 
-        // Generate an address seed by combining userSalt, sub (subject ID), and aud (audience).
+        // Generate an address seed by combining userSalt, sub (subject ID), and aud (audience)
         const addressSeed = genAddressSeed(
             BigInt(account.userSalt),
             'sub',
@@ -264,7 +290,7 @@ export const App: React.FC = () =>
         ).toString();
 
         // Serialize the zkLogin signature by combining the ZK proof (inputs), the maxEpoch,
-        // and the ephemeral signature (userSignature).
+        // and the ephemeral signature (userSignature)
         const zkLoginSignature : SerializedSignature = getZkLoginSignature({
             inputs: {
                 ...account.zkProofs,
@@ -419,7 +445,8 @@ export const App: React.FC = () =>
     );
 }
 
-// Modal copied from https://github.com/juzybits/polymedia-timezones
+/* Utilities */
+
 const Modal: React.FC<{
     content: React.ReactNode;
 }> = ({
