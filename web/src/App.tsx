@@ -2,15 +2,16 @@ import { SuiClient, getFullnodeUrl } from '@mysten/sui.js/client';
 import { SerializedSignature } from '@mysten/sui.js/cryptography';
 import { Ed25519Keypair } from '@mysten/sui.js/keypairs/ed25519';
 import { TransactionBlock } from '@mysten/sui.js/transactions';
+import { fromB64 } from '@mysten/sui.js/utils';
 import {
     genAddressSeed,
     generateNonce,
     generateRandomness,
+    getExtendedEphemeralPublicKey,
     getZkLoginSignature,
     jwtToAddress,
 } from '@mysten/zklogin';
 import { makeSuiExplorerUrl } from '@polymedia/suits';
-import { toBigIntBE } from 'bigint-buffer';
 import { decodeJwt } from 'jose';
 import { useEffect, useRef, useState } from 'react';
 import './App.less';
@@ -39,7 +40,6 @@ type SetupData = {
     provider: OpenIdProvider;
     maxEpoch: number;
     randomness: string;
-    ephemeralPublicKey: string;
     ephemeralPrivateKey: string;
 }
 
@@ -47,7 +47,6 @@ type AccountData = {
     provider: OpenIdProvider;
     userAddr: string;
     zkProofs: any; // TODO: add type
-    ephemeralPublicKey: string;
     ephemeralPrivateKey: string;
     userSalt: string;
     sub: string;
@@ -87,7 +86,6 @@ export const App: React.FC = () =>
             provider,
             maxEpoch,
             randomness: randomness.toString(),
-            ephemeralPublicKey: toBigIntBE(Buffer.from(ephemeralKeyPair.getPublicKey().toSuiBytes())).toString(),
             ephemeralPrivateKey: ephemeralKeyPair.export().privateKey,
         });
 
@@ -186,10 +184,12 @@ export const App: React.FC = () =>
         // Get the zero-knowledge proof
         // https://docs.sui.io/build/zk_login#get-the-zero-knowledge-proof
 
+        const ephemeralKeyPair = keypairFromSecretKey(setupData.ephemeralPrivateKey);
+        const ephemeralPublicKey = ephemeralKeyPair.getPublicKey();
         const payload = JSON.stringify({
             maxEpoch: setupData.maxEpoch,
             jwtRandomness: setupData.randomness,
-            extendedEphemeralPublicKey: setupData.ephemeralPublicKey,
+            extendedEphemeralPublicKey: getExtendedEphemeralPublicKey(ephemeralPublicKey),
             jwt,
             salt: userSalt.toString(),
             keyClaimName: 'sub',
@@ -224,7 +224,6 @@ export const App: React.FC = () =>
             provider: setupData.provider,
             userAddr,
             zkProofs,
-            ephemeralPublicKey: setupData.ephemeralPublicKey,
             ephemeralPrivateKey: setupData.ephemeralPrivateKey,
             userSalt: userSalt.toString(),
             sub: jwtPayload.sub,
@@ -241,9 +240,8 @@ export const App: React.FC = () =>
         // Sign the transaction bytes with the ephemeral private key.
         const txb = new TransactionBlock();
         txb.setSender(account.userAddr);
-        const ephemeralKeyPair = Ed25519Keypair.fromSecretKey(
-            Buffer.from(account.ephemeralPrivateKey, 'base64')
-        );
+
+        const ephemeralKeyPair = keypairFromSecretKey(account.ephemeralPrivateKey);
         const { bytes, signature: userSignature } = await txb.sign({
             client: suiClient,
             signer: ephemeralKeyPair,
@@ -289,7 +287,17 @@ export const App: React.FC = () =>
         });
     }
 
-    // Get the SUI balance for each account
+    /**
+     * Create a Ed25519 keypair from a base64-encoded secret key
+     */
+    function keypairFromSecretKey(privateKeyBase64: string): Ed25519Keypair {
+        const privateKeyBytes = fromB64(privateKeyBase64);
+        return Ed25519Keypair.fromSecretKey(privateKeyBytes);
+    }
+
+    /**
+     * Get the SUI balance for each account
+     */
     async function fetchBalances(accounts: AccountData[]) {
         if (accounts.length == 0) {
             return;
