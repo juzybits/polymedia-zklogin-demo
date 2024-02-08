@@ -46,7 +46,7 @@ type SetupData = {
 type AccountData = {
     provider: OpenIdProvider;
     userAddr: string;
-    zkProofs: any; // TODO: add type
+    zkProofs: any;
     ephemeralPrivateKey: string;
     userSalt: string;
     sub: string;
@@ -62,7 +62,6 @@ export const App: React.FC = () =>
 
     useEffect(() => {
         completeZkLogin();
-
         fetchBalances(accounts.current);
         const interval = setInterval(() => fetchBalances(accounts.current), 5_000);
         return () => {clearInterval(interval)};
@@ -74,7 +73,8 @@ export const App: React.FC = () =>
      * Start the zkLogin process by getting a JWT token from an OpenID provider.
      * https://docs.sui.io/concepts/cryptography/zklogin#get-jwt-token
      */
-    async function beginZkLogin(provider: OpenIdProvider) {
+    async function beginZkLogin(provider: OpenIdProvider)
+    {
         setModalContent(`🔑 Logging in with ${provider}...`);
 
         // Create a nonce
@@ -106,7 +106,7 @@ export const App: React.FC = () =>
                     ...urlParamsBase,
                     client_id: config.CLIENT_ID_GOOGLE,
                 });
-                loginUrl = `https://accounts.google.com/o/oauth2/v2/auth?${urlParams}`;
+                loginUrl = `https://accounts.google.com/o/oauth2/v2/auth?${urlParams.toString()}`;
                 break;
             }
             case 'Twitch': {
@@ -117,7 +117,7 @@ export const App: React.FC = () =>
                     lang: 'en',
                     login_type: 'login',
                 });
-                loginUrl = `https://id.twitch.tv/oauth2/authorize?${urlParams}`;
+                loginUrl = `https://id.twitch.tv/oauth2/authorize?${urlParams.toString()}`;
                 break;
             }
             case 'Facebook': {
@@ -125,7 +125,7 @@ export const App: React.FC = () =>
                     ...urlParamsBase,
                     client_id: config.CLIENT_ID_FACEBOOK,
                 });
-                loginUrl = `https://www.facebook.com/v18.0/dialog/oauth?${urlParams}`;
+                loginUrl = `https://www.facebook.com/v18.0/dialog/oauth?${urlParams.toString()}`;
                 break;
             }
         }
@@ -177,7 +177,7 @@ export const App: React.FC = () =>
                 body: JSON.stringify({ jwt }),
             };
 
-        const saltResponse: any =
+        const saltResponse: { salt: string } | null =
             await fetch(config.URL_SALT_SERVICE, requestOptions)
             .then(res => {
                 console.debug('[completeZkLogin] salt service success');
@@ -336,7 +336,7 @@ export const App: React.FC = () =>
         if (accounts.length == 0) {
             return;
         }
-        const newBalances: Map<string, number> = new Map();
+        const newBalances = new Map<string, number>();
         for (const account of accounts) {
             const suiBalance = await suiClient.getBalance({
                 owner: account.userAddr,

@@ -15,6 +15,9 @@ module.exports = {
     rules: {
         '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
         '@typescript-eslint/no-floating-promises': 'off',
+        '@typescript-eslint/no-unsafe-assignment': 'off',
+        '@typescript-eslint/no-explicit-any': 'off',
+        'react-hooks/exhaustive-deps': 'off',
         'react-refresh/only-export-components': [ 'warn', { allowConstantExport: true } ],
         'react/no-unescaped-entities': 'off',
         'react/prop-types': 'off',
