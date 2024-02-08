@@ -460,16 +460,18 @@ export const App: React.FC = () =>
                     >
                         Send transaction
                     </button>
-                    <button
-                        className='btn-faucet'
-                        onClick={() => {
-                            useSuiFaucet(NETWORK, acct.userAddr);
-                            setModalContent('💰 Requesting SUI from faucet. This will take a few seconds...');
-                            setTimeout(() => { setModalContent('') }, 3000);
-                        }}
-                    >
-                        Use faucet
-                    </button>
+                    { balance === 0 &&
+                        <button
+                            className='btn-faucet'
+                            onClick={() => {
+                                useSuiFaucet(NETWORK, acct.userAddr);
+                                setModalContent('💰 Requesting SUI from faucet. This will take a few seconds...');
+                                setTimeout(() => { setModalContent('') }, 3000);
+                            }}
+                        >
+                            Use faucet
+                        </button>
+                    }
                     <hr/>
                 </div>
                 );
