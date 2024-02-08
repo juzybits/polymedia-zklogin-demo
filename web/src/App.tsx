@@ -11,7 +11,7 @@ import {
     getZkLoginSignature,
     jwtToAddress,
 } from '@mysten/zklogin';
-import { makeSuiExplorerUrl } from '@polymedia/suits';
+import { NetworkName, makeSuiExplorerUrl, useSuiFaucet } from '@polymedia/suits';
 import { useEffect, useRef, useState } from 'react';
 import './App.less';
 
@@ -20,7 +20,7 @@ import './App.less';
 import config from './config.json'; // copy and modify config.example.json with your own values
 import { jwtDecode } from 'jwt-decode';
 
-const NETWORK = 'devnet';
+const NETWORK: NetworkName = 'devnet';
 const MAX_EPOCH = 2; // keep ephemeral keys active for this many Sui epochs from now (1 epoch ~= 24h)
 
 const suiClient = new SuiClient({
@@ -322,7 +322,7 @@ export const App: React.FC = () =>
     }
 
     /**
-     * Create a Ed25519 keypair from a base64-encoded secret key
+     * Create a keypair from a base64-encoded secret key
      */
     function keypairFromSecretKey(privateKeyBase64: string): Ed25519Keypair {
         const privateKeyBytes = fromB64(privateKeyBase64);
@@ -435,6 +435,12 @@ export const App: React.FC = () =>
                         onClick={() => {sendTransaction(acct)}}
                     >
                         Send transaction
+                    </button>
+                    <button
+                        className={'btn-faucet'}
+                        onClick={() => {useSuiFaucet(NETWORK, acct.userAddr)}}
+                    >
+                        Use faucet
                     </button>
                     <hr/>
                 </div>
