@@ -12,8 +12,8 @@ dependencies:
     specifier: ^0.4.1
     version: 0.4.1
   '@polymedia/suits':
-    specifier: ^0.0.16
-    version: 0.0.16
+    specifier: ^0.0.17
+    version: 0.0.17
   jwt-decode:
     specifier: ^4.0.0
     version: 4.0.0
@@ -395,8 +395,8 @@ packages:
       fastq: 1.17.1
     dev: true
 
-  /@polymedia/suits@0.0.16:
-    resolution: {integrity: sha512-uzohGq22AKo6GCcorMZ3G1U1wE8mlE/VkH1Ar5JXZPgyXGc5trCweVub48OTcinulyAvKPJoKUMDCk+2Biw6OA==}
+  /@polymedia/suits@0.0.17:
+    resolution: {integrity: sha512-TwGDyLhpjNqLVV+fE/6yF1BkP7unk5ZtAtlJYnJLT2/HGAcmuPvbbQ9n6jMgX5+Dz4ESqjWqi+EBD1nT0BKicw==}
     dependencies:
       '@mysten/sui.js': 0.49.1
     dev: false
@@ -1120,7 +1120,7 @@ packages:
       es-to-primitive: 1.2.1
       function.prototype.name: 1.1.6
       get-intrinsic: 1.2.4
-      get-symbol-description: 1.0.1
+      get-symbol-description: 1.0.2
       globalthis: 1.0.3
       gopd: 1.0.1
       has-property-descriptors: 1.0.1
@@ -1486,12 +1486,13 @@ packages:
       hasown: 2.0.0
     dev: true
 
-  /get-symbol-description@1.0.1:
-    resolution: {integrity: sha512-KmuibvwbWaM4BHcBRYwJfZ1JxyJeBwB8ct9YYu67SvYdbEIlcQ2e56dHxfbobqW38GXo8/zDFqJeGtHiVbWyQw==}
+  /get-symbol-description@1.0.2:
+    resolution: {integrity: sha512-g0QYk1dZBxGwk+Ngc+ltRH2IBp2f7zBkBMBJZCDerh6EhlhSR6+9irMCuT/09zD6qkarHUSn529sK/yL4S27mg==}
     engines: {node: '>= 0.4'}
     dependencies:
       call-bind: 1.0.6
       es-errors: 1.3.0
+      get-intrinsic: 1.2.4
     dev: true
 
   /glob-parent@5.1.2:
