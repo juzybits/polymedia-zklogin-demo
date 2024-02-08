@@ -140,7 +140,7 @@ export const App: React.FC = () =>
      */
     async function completeZkLogin()
     {
-        // === Validate and decode the JWT that beginZkLogin() produced ===
+        // === Grab and decode the JWT that beginZkLogin() produced ===
         // https://docs.sui.io/concepts/cryptography/zklogin#decoding-jwt
 
         // grab the JWT from the URL fragment (the '#...')
@@ -165,7 +165,7 @@ export const App: React.FC = () =>
         // https://docs.sui.io/concepts/cryptography/zklogin#user-salt-management
 
         const requestOptions =
-            config.URL_SALT_SERVICE === '/dummy-salt-server.json'
+            config.URL_SALT_SERVICE === '/dummy-salt-service.json'
             ? // dev, using a JSON file (same salt all the time)
             {
                 method: 'GET',
@@ -208,7 +208,7 @@ export const App: React.FC = () =>
         clearSetupData();
         for (const account of accounts.current) {
             if (userAddr === account.userAddr) {
-                console.warn(`[completeZkLogin] already logged in with this ${setupData.provider} account`); // TODO: replace old with new
+                console.warn(`[completeZkLogin] already logged in with this ${setupData.provider} account`);
                 return;
             }
         }
