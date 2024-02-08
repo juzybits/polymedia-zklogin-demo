@@ -28,7 +28,7 @@ Sui zkLogin, and there are comments that explain the different steps.
 
 All the relevant code is in [web/src/App.tsx](./web/src/App.tsx)
 
-#### Local development
+### Local development
 
 Create and modify `config.json`:
 
@@ -43,6 +43,8 @@ pnpm install
 pnpm serve
 ```
 
+Keep your browser console open so you can see debug and error messages.
+
 ## Back-end
 
 ### ZK proving service
@@ -52,7 +54,7 @@ This app uses the devnet prover that's maintained by Mysten Labs.
 Alternatively, you can run your own prover:
 https://docs.sui.io/concepts/cryptography/zklogin#run-the-proving-service-in-your-backend
 
-## Salt service
+### Salt service
 
 This app uses a hard-coded value for the salt so it works out of the box without any further setup.
 
