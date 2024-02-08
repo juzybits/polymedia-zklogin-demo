@@ -387,19 +387,30 @@ export const App: React.FC = () =>
         return data;
     }
 
+    function clearState(): void {
+        sessionStorage.clear();
+        accounts.current = [];
+        setBalances(new Map());
+    }
+
     /* HTML */
 
     const openIdProviders: OpenIdProvider[] = ['Google', 'Twitch', 'Facebook'];
     return (
     <div id='page'>
+
         <Modal content={modalContent} />
+
         <a id='polymedia-logo' href='https://polymedia.app' target='_blank' rel='noopener noreferrer'>
             <img src='https://assets.polymedia.app/img/all/logo-nomargin-transparent-512x512.webp' alt='Polymedia logo' />
         </a>
+
         <div id='network-indicator'>
             <label>{NETWORK}</label>
         </div>
+
         <h1>Sui zkLogin demo</h1>
+
         <div id='login-buttons' className='section'>
             <h2>Log in:</h2>
             {openIdProviders.map(provider =>
@@ -412,6 +423,17 @@ export const App: React.FC = () =>
                 </button>
             )}
         </div>
+
+        <div className='section'>
+            <button
+                className='btn-clear'
+                onClick={() => { clearState() }}
+            >
+                🧨 CLEAR STATE
+            </button>
+        </div>
+
+        { accounts.current.length > 0 &&
         <div id='accounts' className='section'>
             <h2>Accounts:</h2>
             {accounts.current.map(acct => {
@@ -437,7 +459,7 @@ export const App: React.FC = () =>
                         Send transaction
                     </button>
                     <button
-                        className={'btn-faucet'}
+                        className='btn-faucet'
                         onClick={() => {useSuiFaucet(NETWORK, acct.userAddr)}}
                     >
                         Use faucet
@@ -447,6 +469,8 @@ export const App: React.FC = () =>
                 );
             })}
         </div>
+        }
+
     </div>
     );
 }
