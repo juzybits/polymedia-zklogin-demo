@@ -12,13 +12,13 @@ import {
     jwtToAddress,
 } from '@mysten/zklogin';
 import { NetworkName, makeSuiExplorerUrl, shortenSuiAddress, useSuiFaucet } from '@polymedia/suits';
+import { jwtDecode } from 'jwt-decode';
 import { useEffect, useRef, useState } from 'react';
 import './App.less';
 
 /* Configuration */
 
 import config from './config.json'; // copy and modify config.example.json with your own values
-import { jwtDecode } from 'jwt-decode';
 
 const NETWORK: NetworkName = 'devnet';
 const MAX_EPOCH = 2; // keep ephemeral keys active for this many Sui epochs from now (1 epoch ~= 24h)
