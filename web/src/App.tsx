@@ -11,7 +11,7 @@ import {
     getZkLoginSignature,
     jwtToAddress,
 } from '@mysten/zklogin';
-import { NetworkName, makeSuiExplorerUrl, useSuiFaucet } from '@polymedia/suits';
+import { NetworkName, makeSuiExplorerUrl, shortenSuiAddress, useSuiFaucet } from '@polymedia/suits';
 import { useEffect, useRef, useState } from 'react';
 import './App.less';
 
@@ -125,7 +125,7 @@ export const App: React.FC = () =>
                     ...urlParamsBase,
                     client_id: config.CLIENT_ID_FACEBOOK,
                 });
-                loginUrl = `https://www.facebook.com/v18.0/dialog/oauth?${urlParams.toString()}`;
+                loginUrl = `https://www.facebook.com/v19.0/dialog/oauth?${urlParams.toString()}`;
                 break;
             }
         }
@@ -395,7 +395,9 @@ export const App: React.FC = () =>
 
     /* HTML */
 
-    const openIdProviders: OpenIdProvider[] = ['Google', 'Twitch', 'Facebook'];
+    const openIdProviders: OpenIdProvider[] = isLocalhost()
+        ? ['Google', 'Twitch', 'Facebook']
+        : ['Google', 'Twitch']; // Facebook requires business verification to publish the app
     return (
     <div id='page'>
 
@@ -446,7 +448,7 @@ export const App: React.FC = () =>
                     </div>
                     <div>
                         Address: <a target='_blank' rel='noopener noreferrer' href={explorerLink}>
-                            {shortenAddress(acct.userAddr)}
+                            {shortenSuiAddress(acct.userAddr, 6, 6, '0x', '...')}
                         </a>
                     </div>
                     <div>User ID: {acct.sub}</div>
@@ -500,6 +502,7 @@ const Modal: React.FC<{
     );
 }
 
-function shortenAddress(address: string): string {
-    return '0x' + address.slice(2, 8) + '...' + address.slice(-6);
+export function isLocalhost(): boolean {
+    const hostname = window.location.hostname;
+    return hostname === 'localhost' || hostname === '127.0.0.1';
 }
