@@ -426,15 +426,6 @@ export const App: React.FC = () =>
             )}
         </div>
 
-        <div className='section'>
-            <button
-                className='btn-clear'
-                onClick={() => { clearState() }}
-            >
-                🧨 CLEAR STATE
-            </button>
-        </div>
-
         { accounts.current.length > 0 &&
         <div id='accounts' className='section'>
             <h2>Accounts:</h2>
@@ -478,6 +469,15 @@ export const App: React.FC = () =>
             })}
         </div>
         }
+
+        <div className='section'>
+            <button
+                className='btn-clear'
+                onClick={() => { clearState() }}
+            >
+                🧨 CLEAR STATE
+            </button>
+        </div>
 
     </div>
     );
