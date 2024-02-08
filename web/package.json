@@ -4,7 +4,7 @@
     "name": "@polymedia/zklogin-demo",
     "author": "@juzybits (https://polymedia.app)",
     "homepage": "https://zklogin-demo.polymedia.app",
-    "description": "Sui zkLogin end-to-end implementation and tutorial",
+    "description": "Sui zkLogin demo implementation",
     "license": "Apache-2.0",
     "repository": {
         "type": "git",

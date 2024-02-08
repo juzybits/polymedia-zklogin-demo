@@ -8,6 +8,9 @@ It shows how to use Google/Twitch/Facebook to create a Sui zkLogin address and s
 
 The code is meant to be as simple as possible to demonstrate how to put all the pieces together.
 
+The app is live here:
+https://zklogin-demo.polymedia.app
+
 Official docs: https://docs.sui.io/concepts/cryptography/zklogin
 
 ## OpenID providers
@@ -27,7 +30,11 @@ All the relevant code is in [web/src/App.tsx](./web/src/App.tsx)
 
 #### Local development
 
-Copy `web/config.example.json` into `web/config.json` and modify it.
+Create and modify `config.json`:
+
+```bash
+cp web/src/config.example.json web/src/config.json
+```
 
 Run the app locally:
 ```bash
@@ -54,7 +61,7 @@ In production you have a few alternatives:
 - You can use the salt service that's maintained by Mysten Labs (you'll have to contact
 them to get whitelisted).
 
-- You can ask the user to provide the salt, who must remember it as if it was a password.
+- You can ask the user to provide the salt, who must then remember it as if it were a password.
 
 - You can run your own salt service to return a unique salt for each user.
 
