@@ -20,16 +20,16 @@ Docs: https://docs.sui.io/concepts/cryptography/zklogin#configure-a-developer-ac
 
 ## Front-end
 
-This is a simple React app. The code is designed to be serve as a tutorial for how to implement
-zkLogin, and there are comments that explain the different steps.
+This is a simple React app. The code is meant to be a tutorial for how to implement
+Sui zkLogin, and there are comments that explain the different steps.
 
 All the relevant code is in [web/src/App.tsx](./web/src/App.tsx)
 
 #### Local development
 
-\- Copy `web/config.example.json` into `web/config.json` and modify it.
+Copy `web/config.example.json` into `web/config.json` and modify it.
 
-\- Run the app locally:
+Run the app locally:
 ```bash
 cd web/
 pnpm install
@@ -38,11 +38,29 @@ pnpm serve
 
 ## Back-end
 
-When I first built this demo app, Mysten Labs didn't offer a devnet proving service. So I wrote
-a guide to help people set up their own prover. It also shows how to set up a dummy salt service. Doing this is no longer needed to run the app, so the tutorial is not being maintained, but you can find it in
-[old-backend-tutorial/README.md](./old-backend-tutorial/README.md)
+### ZK proving service
 
-## Additional resources
+This app uses the devnet prover that's maintained by Mysten Labs.
+
+Alternatively, you can run your own prover:
+https://docs.sui.io/concepts/cryptography/zklogin#run-the-proving-service-in-your-backend
+
+## Salt service
+
+This app uses a hard-coded value for the salt so it works out of the box without any further setup.
+
+In production you have a few alternatives:
+
+- You can use the salt service that's maintained by Mysten Labs (you'll have to contact
+them to get whitelisted).
+
+- You can ask the user to provide the salt, who must remember it as if it was a password.
+
+- You can run your own salt service to return a unique salt for each user.
+
+https://docs.sui.io/concepts/cryptography/zklogin#user-salt-management
+
+## Resources
 
 ### Docs
 
@@ -71,21 +89,4 @@ https://blog.sui.io/proving-service-zklogin/
 ### Other
 
 zkLogin Audit<br/>
-https://github.com/sui-foundation/security-audits/blob/main/zksecurity_zklogin-circuits.pdf
-
-### Code
-
-sui-wallet | @MystenLabs<br/>
-https://github.com/MystenLabs/sui/blob/main/apps/wallet/src/background/accounts/zklogin/
-
-chrome-extension | @EthosWallet<br/>
-https://github.com/EthosWallet/chrome-extension/tree/main/src/ui/app/components/zklogin/
-
-sui-zk-wallet | @ronanyeah<br/>
-https://github.com/ronanyeah/sui-zk-wallet
-
-zklogin-demo | @Scale3-Labs<br/>
-https://github.com/Scale3-Labs/zklogin-demo
-
-suidouble-zklogin | @suidouble<br/>
-https://github.com/suidouble/suidouble-zklogin
+https://github.com/sui-foundation/security-audits/blob/main/docs/zksecurity_zklogin-circuits.pdf
