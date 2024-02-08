@@ -1,6 +1,6 @@
 # Sui zkLogin demo
 
-![Sui zkLogin demo](https://assets.polymedia.app/img/zklogin/open-graph.png)
+![Sui zkLogin demo](https://zklogin-demo.polymedia.app/img/open-graph.png)
 
 A Sui zkLogin end-to-end implementation.
 
