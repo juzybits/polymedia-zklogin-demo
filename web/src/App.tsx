@@ -1,8 +1,7 @@
 import { SuiClient, getFullnodeUrl } from '@mysten/sui.js/client';
-import { SerializedSignature } from '@mysten/sui.js/cryptography';
+import { SerializedSignature, decodeSuiPrivateKey } from '@mysten/sui.js/cryptography';
 import { Ed25519Keypair } from '@mysten/sui.js/keypairs/ed25519';
 import { TransactionBlock } from '@mysten/sui.js/transactions';
-import { fromB64 } from '@mysten/sui.js/utils';
 import {
     genAddressSeed,
     generateNonce,
@@ -11,7 +10,7 @@ import {
     getZkLoginSignature,
     jwtToAddress,
 } from '@mysten/zklogin';
-import { NetworkName, makeSuiExplorerUrl, shortenSuiAddress, useSuiFaucet } from '@polymedia/suits';
+import { NetworkName, makeSuiExplorerUrl, requestSuiFromFaucet, shortenSuiAddress } from '@polymedia/suits';
 import { jwtDecode } from 'jwt-decode';
 import { useEffect, useRef, useState } from 'react';
 import './App.less';
@@ -89,7 +88,7 @@ export const App: React.FC = () =>
             provider,
             maxEpoch,
             randomness: randomness.toString(),
-            ephemeralPrivateKey: ephemeralKeyPair.export().privateKey,
+            ephemeralPrivateKey: ephemeralKeyPair.getSecretKey(),
         });
 
         // Start the OAuth flow with the OpenID provider
@@ -325,8 +324,8 @@ export const App: React.FC = () =>
      * Create a keypair from a base64-encoded secret key
      */
     function keypairFromSecretKey(privateKeyBase64: string): Ed25519Keypair {
-        const privateKeyBytes = fromB64(privateKeyBase64);
-        return Ed25519Keypair.fromSecretKey(privateKeyBytes);
+        const keyPair = decodeSuiPrivateKey(privateKeyBase64);
+        return Ed25519Keypair.fromSecretKey(keyPair.secretKey);
     }
 
     /**
@@ -455,7 +454,7 @@ export const App: React.FC = () =>
                         <button
                             className='btn-faucet'
                             onClick={() => {
-                                useSuiFaucet(NETWORK, acct.userAddr);
+                                requestSuiFromFaucet(NETWORK, acct.userAddr);
                                 setModalContent('💰 Requesting SUI from faucet. This will take a few seconds...');
                                 setTimeout(() => { setModalContent('') }, 3000);
                             }}
@@ -504,7 +503,7 @@ const Modal: React.FC<{
     );
 }
 
-export function isLocalhost(): boolean {
+function isLocalhost(): boolean {
     const hostname = window.location.hostname;
     return hostname === 'localhost' || hostname === '127.0.0.1';
 }
