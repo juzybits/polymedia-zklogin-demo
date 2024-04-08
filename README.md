@@ -40,7 +40,7 @@ Run the app locally:
 ```bash
 cd web/
 pnpm install
-pnpm serve
+pnpm dev
 ```
 
 Keep your browser console open so you can see debug and error messages.

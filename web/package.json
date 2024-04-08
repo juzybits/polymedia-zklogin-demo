@@ -17,7 +17,7 @@
         "deploy-prod": "pnpm build && wrangler pages deploy dist/ --project-name zklogin-demo --branch main",
         "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
         "preview": "pnpm build && vite preview",
-        "serve": "vite"
+        "dev": "vite"
     },
     "dependencies": {
         "@mysten/sui.js": "^0.51.2",

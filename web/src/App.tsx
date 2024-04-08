@@ -182,7 +182,7 @@ export const App: React.FC = () =>
                 console.debug('[completeZkLogin] salt service success');
                 return res.json();
             })
-            .catch(error => {
+            .catch((error: unknown) => {
                 console.warn('[completeZkLogin] salt service error:', error);
                 return null;
             });
@@ -238,7 +238,7 @@ export const App: React.FC = () =>
             console.debug('[completeZkLogin] ZK proving service success');
             return res.json();
         })
-        .catch(error => {
+        .catch((error: unknown) => {
             console.warn('[completeZkLogin] ZK proving service error:', error);
             return null;
         })
@@ -311,7 +311,7 @@ export const App: React.FC = () =>
             console.debug('[sendTransaction] executeTransactionBlock response:', result);
             fetchBalances([account]);
         })
-        .catch(error => {
+        .catch((error: unknown) => {
             console.warn('[sendTransaction] executeTransactionBlock failed:', error);
             return null;
         })
