@@ -11,6 +11,7 @@ import {
     jwtToAddress,
 } from '@mysten/zklogin';
 import { NetworkName, makeExplorerUrl, requestSuiFromFaucet, shortenSuiAddress } from '@polymedia/suits';
+import { Modal, isLocalhost } from '@polymedia/webutils';
 import { jwtDecode } from 'jwt-decode';
 import { useEffect, useRef, useState } from 'react';
 import './App.less';
@@ -480,30 +481,4 @@ export const App: React.FC = () =>
 
     </div>
     );
-}
-
-/* Utilities */
-
-const Modal: React.FC<{
-    content: React.ReactNode;
-}> = ({
-    content,
-}) =>
-{
-    if (!content) {
-        return null;
-    }
-
-    return (
-        <div className='modal-background'>
-            <div className='modal-content'>
-                {content}
-            </div>
-        </div>
-    );
-}
-
-function isLocalhost(): boolean {
-    const hostname = window.location.hostname;
-    return hostname === 'localhost' || hostname === '127.0.0.1';
 }
