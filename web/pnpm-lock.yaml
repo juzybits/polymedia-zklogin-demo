@@ -14,6 +14,9 @@ dependencies:
   '@polymedia/suits':
     specifier: ^0.0.39
     version: 0.0.39(typescript@5.4.4)
+  '@polymedia/webutils':
+    specifier: ^0.0.48
+    version: 0.0.48(react-dom@18.2.0)(react@18.2.0)(typescript@5.4.4)
   jwt-decode:
     specifier: ^4.0.0
     version: 4.0.0
@@ -447,6 +450,19 @@ packages:
     resolution: {integrity: sha512-UR904waKIDXwDATxlERdas4gVRfCLwFxe/Gp5AeUUzk2+yBuhx0PAgKef/EUSjlA942iDZkm0z5Nx8zZ4kpMLw==}
     dependencies:
       '@mysten/sui.js': 0.51.2(typescript@5.4.4)
+    transitivePeerDependencies:
+      - typescript
+    dev: false
+
+  /@polymedia/webutils@0.0.48(react-dom@18.2.0)(react@18.2.0)(typescript@5.4.4):
+    resolution: {integrity: sha512-uE7bpJKKuluw4nzbuv/QiFqwiV4swvJX0PbULor83au59Q3CQAd++hran5isL3WeaitHKm+ziGQUCvr0d6CmgA==}
+    peerDependencies:
+      react: ^18.0.0
+      react-dom: ^18.0.0
+    dependencies:
+      '@polymedia/suits': 0.0.39(typescript@5.4.4)
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
     transitivePeerDependencies:
       - typescript
     dev: false

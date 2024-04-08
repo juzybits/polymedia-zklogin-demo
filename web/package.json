@@ -23,6 +23,7 @@
         "@mysten/sui.js": "^0.51.2",
         "@mysten/zklogin": "^0.5.2",
         "@polymedia/suits": "^0.0.39",
+        "@polymedia/webutils": "^0.0.48",
         "jwt-decode": "^4.0.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0"
