@@ -10,7 +10,7 @@ import {
     getZkLoginSignature,
     jwtToAddress,
 } from '@mysten/zklogin';
-import { NetworkName, makeSuiExplorerUrl, requestSuiFromFaucet, shortenSuiAddress } from '@polymedia/suits';
+import { NetworkName, makeExplorerUrl, requestSuiFromFaucet, shortenSuiAddress } from '@polymedia/suits';
 import { jwtDecode } from 'jwt-decode';
 import { useEffect, useRef, useState } from 'react';
 import './App.less';
@@ -227,7 +227,7 @@ export const App: React.FC = () =>
         }, null, 2);
 
         console.debug('[completeZkLogin] Requesting ZK proof with:', payload);
-        setModalContent('⏳ Requesting ZK proof. This can take a few seconds...')
+        setModalContent('⏳ Requesting ZK proof. This can take a few seconds...');
 
         const zkProofs = await fetch(config.URL_ZK_PROVER, {
             method: 'POST',
@@ -403,7 +403,7 @@ export const App: React.FC = () =>
         <Modal content={modalContent} />
 
         <a id='polymedia-logo' href='https://polymedia.app' target='_blank' rel='noopener noreferrer'>
-            <img src='https://assets.polymedia.app/img/all/logo-nomargin-transparent-512x512.webp' alt='Polymedia logo' />
+            <img src='https://assets.polymedia.app/img/all/logo-nomargin-transparent-512x512.webp' alt='Polymedia' />
         </a>
 
         <div id='network-indicator'>
@@ -430,7 +430,7 @@ export const App: React.FC = () =>
             <h2>Accounts:</h2>
             {accounts.current.map(acct => {
                 const balance = balances.get(acct.userAddr);
-                const explorerLink = makeSuiExplorerUrl(NETWORK, 'address', acct.userAddr);
+                const explorerLink = makeExplorerUrl(NETWORK, 'address', acct.userAddr);
                 return (
                 <div className='account' key={acct.userAddr}>
                     <div>

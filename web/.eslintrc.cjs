@@ -17,6 +17,7 @@ module.exports = {
         '@typescript-eslint/no-floating-promises': 'off',
         '@typescript-eslint/no-unsafe-assignment': 'off',
         '@typescript-eslint/no-explicit-any': 'off',
+        '@typescript-eslint/restrict-template-expressions': 'off',
         'react-hooks/exhaustive-deps': 'off',
         'react-refresh/only-export-components': [ 'warn', { allowConstantExport: true } ],
         'react/no-unescaped-entities': 'off',
