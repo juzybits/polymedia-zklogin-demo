@@ -439,7 +439,7 @@ export const App: React.FC = () =>
                     </div>
                     <div>
                         Address: <a target="_blank" rel="noopener noreferrer" href={explorerLink}>
-                            {shortenSuiAddress(acct.userAddr, 6, 6, "0x", "...")}
+                            {shortenSuiAddress(acct.userAddr)}
                         </a>
                     </div>
                     <div>User ID: {acct.sub}</div>
