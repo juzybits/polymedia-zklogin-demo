@@ -1,7 +1,7 @@
-import { SuiClient, getFullnodeUrl } from '@mysten/sui.js/client';
-import { SerializedSignature, decodeSuiPrivateKey } from '@mysten/sui.js/cryptography';
-import { Ed25519Keypair } from '@mysten/sui.js/keypairs/ed25519';
-import { TransactionBlock } from '@mysten/sui.js/transactions';
+import { SuiClient, getFullnodeUrl } from "@mysten/sui.js/client";
+import { SerializedSignature, decodeSuiPrivateKey } from "@mysten/sui.js/cryptography";
+import { Ed25519Keypair } from "@mysten/sui.js/keypairs/ed25519";
+import { TransactionBlock } from "@mysten/sui.js/transactions";
 import {
     genAddressSeed,
     generateNonce,
@@ -9,18 +9,18 @@ import {
     getExtendedEphemeralPublicKey,
     getZkLoginSignature,
     jwtToAddress,
-} from '@mysten/zklogin';
-import { NetworkName, makeExplorerUrl, requestSuiFromFaucet, shortenSuiAddress } from '@polymedia/suits';
-import { Modal, isLocalhost } from '@polymedia/webutils';
-import { jwtDecode } from 'jwt-decode';
-import { useEffect, useRef, useState } from 'react';
-import './App.less';
+} from "@mysten/zklogin";
+import { NetworkName, makeExplorerUrl, requestSuiFromFaucet, shortenSuiAddress } from "@polymedia/suits";
+import { Modal, isLocalhost } from "@polymedia/webutils";
+import { jwtDecode } from "jwt-decode";
+import { useEffect, useRef, useState } from "react";
+import "./App.less";
 
 /* Configuration */
 
-import config from './config.json'; // copy and modify config.example.json with your own values
+import config from "./config.json"; // copy and modify config.example.json with your own values
 
-const NETWORK: NetworkName = 'devnet';
+const NETWORK: NetworkName = "devnet";
 const MAX_EPOCH = 2; // keep ephemeral keys active for this many Sui epochs from now (1 epoch ~= 24h)
 
 const suiClient = new SuiClient({
@@ -29,19 +29,19 @@ const suiClient = new SuiClient({
 
 /* Session storage keys */
 
-const setupDataKey = 'zklogin-demo.setup';
-const accountDataKey = 'zklogin-demo.accounts';
+const setupDataKey = "zklogin-demo.setup";
+const accountDataKey = "zklogin-demo.accounts";
 
 /* Types */
 
-type OpenIdProvider = 'Google' | 'Twitch' | 'Facebook';
+type OpenIdProvider = "Google" | "Twitch" | "Facebook";
 
 type SetupData = {
     provider: OpenIdProvider;
     maxEpoch: number;
     randomness: string;
     ephemeralPrivateKey: string;
-}
+};
 
 type AccountData = {
     provider: OpenIdProvider;
@@ -52,19 +52,19 @@ type AccountData = {
     sub: string;
     aud: string;
     maxEpoch: number;
-}
+};
 
 export const App: React.FC = () =>
 {
     const accounts = useRef<AccountData[]>(loadAccounts()); // useRef() instead of useState() because of setInterval()
     const [balances, setBalances] = useState<Map<string, number>>(new Map()); // Map<Sui address, SUI balance>
-    const [modalContent, setModalContent] = useState<string>('');
+    const [modalContent, setModalContent] = useState<string>("");
 
     useEffect(() => {
         completeZkLogin();
         fetchBalances(accounts.current);
         const interval = setInterval(() => fetchBalances(accounts.current), 5_000);
-        return () => {clearInterval(interval)};
+        return () => {clearInterval(interval);};
     }, []);
 
     /* zkLogin end-to-end */
@@ -96,12 +96,12 @@ export const App: React.FC = () =>
         const urlParamsBase = {
             nonce: nonce,
             redirect_uri: window.location.origin,
-            response_type: 'id_token',
-            scope: 'openid',
+            response_type: "id_token",
+            scope: "openid",
         };
         let loginUrl: string;
         switch (provider) {
-            case 'Google': {
+            case "Google": {
                 const urlParams = new URLSearchParams({
                     ...urlParamsBase,
                     client_id: config.CLIENT_ID_GOOGLE,
@@ -109,18 +109,18 @@ export const App: React.FC = () =>
                 loginUrl = `https://accounts.google.com/o/oauth2/v2/auth?${urlParams.toString()}`;
                 break;
             }
-            case 'Twitch': {
+            case "Twitch": {
                 const urlParams = new URLSearchParams({
                     ...urlParamsBase,
                     client_id: config.CLIENT_ID_TWITCH,
-                    force_verify: 'true',
-                    lang: 'en',
-                    login_type: 'login',
+                    force_verify: "true",
+                    lang: "en",
+                    login_type: "login",
                 });
                 loginUrl = `https://id.twitch.tv/oauth2/authorize?${urlParams.toString()}`;
                 break;
             }
-            case 'Facebook': {
+            case "Facebook": {
                 const urlParams = new URLSearchParams({
                     ...urlParamsBase,
                     client_id: config.CLIENT_ID_FACEBOOK,
@@ -146,18 +146,18 @@ export const App: React.FC = () =>
         // grab the JWT from the URL fragment (the '#...')
         const urlFragment = window.location.hash.substring(1);
         const urlParams = new URLSearchParams(urlFragment);
-        const jwt = urlParams.get('id_token');
+        const jwt = urlParams.get("id_token");
         if (!jwt) {
             return;
         }
 
         // remove the URL fragment
-        window.history.replaceState(null, '', window.location.pathname);
+        window.history.replaceState(null, "", window.location.pathname);
 
         // decode the JWT
         const jwtPayload = jwtDecode(jwt);
         if (!jwtPayload.sub || !jwtPayload.aud) {
-            console.warn('[completeZkLogin] missing jwt.sub or jwt.aud');
+            console.warn("[completeZkLogin] missing jwt.sub or jwt.aud");
             return;
         }
 
@@ -165,26 +165,26 @@ export const App: React.FC = () =>
         // https://docs.sui.io/concepts/cryptography/zklogin#user-salt-management
 
         const requestOptions =
-            config.URL_SALT_SERVICE === '/dummy-salt-service.json'
+            config.URL_SALT_SERVICE === "/dummy-salt-service.json"
             ? // dev, using a JSON file (same salt all the time)
             {
-                method: 'GET',
+                method: "GET",
             }
             : // prod, using an actual salt server
             {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ jwt }),
             };
 
         const saltResponse: { salt: string } | null =
             await fetch(config.URL_SALT_SERVICE, requestOptions)
             .then(res => {
-                console.debug('[completeZkLogin] salt service success');
+                console.debug("[completeZkLogin] salt service success");
                 return res.json();
             })
             .catch((error: unknown) => {
-                console.warn('[completeZkLogin] salt service error:', error);
+                console.warn("[completeZkLogin] salt service error:", error);
                 return null;
             });
 
@@ -202,7 +202,7 @@ export const App: React.FC = () =>
         // === Load and clear the data which beginZkLogin() created before the redirect ===
         const setupData = loadSetupData();
         if (!setupData) {
-            console.warn('[completeZkLogin] missing session storage data');
+            console.warn("[completeZkLogin] missing session storage data");
             return;
         }
         clearSetupData();
@@ -224,27 +224,27 @@ export const App: React.FC = () =>
             extendedEphemeralPublicKey: getExtendedEphemeralPublicKey(ephemeralPublicKey),
             jwt,
             salt: userSalt.toString(),
-            keyClaimName: 'sub',
+            keyClaimName: "sub",
         }, null, 2);
 
-        console.debug('[completeZkLogin] Requesting ZK proof with:', payload);
-        setModalContent('⏳ Requesting ZK proof. This can take a few seconds...');
+        console.debug("[completeZkLogin] Requesting ZK proof with:", payload);
+        setModalContent("⏳ Requesting ZK proof. This can take a few seconds...");
 
         const zkProofs = await fetch(config.URL_ZK_PROVER, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: payload,
         })
         .then(res => {
-            console.debug('[completeZkLogin] ZK proving service success');
+            console.debug("[completeZkLogin] ZK proving service success");
             return res.json();
         })
         .catch((error: unknown) => {
-            console.warn('[completeZkLogin] ZK proving service error:', error);
+            console.warn("[completeZkLogin] ZK proving service error:", error);
             return null;
         })
         .finally(() => {
-            setModalContent('');
+            setModalContent("");
         });
 
         if (!zkProofs) {
@@ -259,7 +259,7 @@ export const App: React.FC = () =>
             ephemeralPrivateKey: setupData.ephemeralPrivateKey,
             userSalt: userSalt.toString(),
             sub: jwtPayload.sub,
-            aud: typeof jwtPayload.aud === 'string' ? jwtPayload.aud : jwtPayload.aud[0],
+            aud: typeof jwtPayload.aud === "string" ? jwtPayload.aud : jwtPayload.aud[0],
             maxEpoch: setupData.maxEpoch,
         });
     }
@@ -269,7 +269,7 @@ export const App: React.FC = () =>
      * https://docs.sui.io/concepts/cryptography/zklogin#assemble-the-zklogin-signature-and-submit-the-transaction
      */
     async function sendTransaction(account: AccountData) {
-        setModalContent('🚀 Sending transaction...');
+        setModalContent("🚀 Sending transaction...");
 
         // Sign the transaction bytes with the ephemeral private key
         const txb = new TransactionBlock();
@@ -284,7 +284,7 @@ export const App: React.FC = () =>
         // Generate an address seed by combining userSalt, sub (subject ID), and aud (audience)
         const addressSeed = genAddressSeed(
             BigInt(account.userSalt),
-            'sub',
+            "sub",
             account.sub,
             account.aud,
         ).toString();
@@ -309,15 +309,15 @@ export const App: React.FC = () =>
             },
         })
         .then(result => {
-            console.debug('[sendTransaction] executeTransactionBlock response:', result);
+            console.debug("[sendTransaction] executeTransactionBlock response:", result);
             fetchBalances([account]);
         })
         .catch((error: unknown) => {
-            console.warn('[sendTransaction] executeTransactionBlock failed:', error);
+            console.warn("[sendTransaction] executeTransactionBlock failed:", error);
             return null;
         })
         .finally(() => {
-            setModalContent('');
+            setModalContent("");
         });
     }
 
@@ -340,7 +340,7 @@ export const App: React.FC = () =>
         for (const account of accounts) {
             const suiBalance = await suiClient.getBalance({
                 owner: account.userAddr,
-                coinType: '0x2::sui::SUI',
+                coinType: "0x2::sui::SUI",
             });
             newBalances.set(
                 account.userAddr,
@@ -355,7 +355,7 @@ export const App: React.FC = () =>
     /* Session storage */
 
     function saveSetupData(data: SetupData) {
-        sessionStorage.setItem(setupDataKey, JSON.stringify(data))
+        sessionStorage.setItem(setupDataKey, JSON.stringify(data));
     }
 
     function loadSetupData(): SetupData|null {
@@ -396,29 +396,29 @@ export const App: React.FC = () =>
     /* HTML */
 
     const openIdProviders: OpenIdProvider[] = isLocalhost()
-        ? ['Google', 'Twitch', 'Facebook']
-        : ['Google', 'Twitch']; // Facebook requires business verification to publish the app
+        ? ["Google", "Twitch", "Facebook"]
+        : ["Google", "Twitch"]; // Facebook requires business verification to publish the app
     return (
-    <div id='page'>
+    <div id="page">
 
         <Modal content={modalContent} />
 
-        <a id='polymedia-logo' href='https://polymedia.app' target='_blank' rel='noopener noreferrer'>
-            <img src='https://assets.polymedia.app/img/all/logo-nomargin-transparent-512x512.webp' alt='Polymedia' />
+        <a id="polymedia-logo" href="https://polymedia.app" target="_blank" rel="noopener noreferrer">
+            <img src="https://assets.polymedia.app/img/all/logo-nomargin-transparent-512x512.webp" alt="Polymedia" />
         </a>
 
-        <div id='network-indicator'>
+        <div id="network-indicator">
             <label>{NETWORK}</label>
         </div>
 
         <h1>Sui zkLogin demo</h1>
 
-        <div id='login-buttons' className='section'>
+        <div id="login-buttons" className="section">
             <h2>Log in:</h2>
             {openIdProviders.map(provider =>
                 <button
                     className={`btn-login ${provider}`}
-                    onClick={() => {beginZkLogin(provider)} }
+                    onClick={() => {beginZkLogin(provider);} }
                     key={provider}
                 >
                     {provider}
@@ -427,37 +427,37 @@ export const App: React.FC = () =>
         </div>
 
         { accounts.current.length > 0 &&
-        <div id='accounts' className='section'>
+        <div id="accounts" className="section">
             <h2>Accounts:</h2>
             {accounts.current.map(acct => {
                 const balance = balances.get(acct.userAddr);
-                const explorerLink = makeExplorerUrl(NETWORK, 'address', acct.userAddr);
+                const explorerLink = makeExplorerUrl(NETWORK, "address", acct.userAddr);
                 return (
-                <div className='account' key={acct.userAddr}>
+                <div className="account" key={acct.userAddr}>
                     <div>
                         <label className={`provider ${acct.provider}`}>{acct.provider}</label>
                     </div>
                     <div>
-                        Address: <a target='_blank' rel='noopener noreferrer' href={explorerLink}>
-                            {shortenSuiAddress(acct.userAddr, 6, 6, '0x', '...')}
+                        Address: <a target="_blank" rel="noopener noreferrer" href={explorerLink}>
+                            {shortenSuiAddress(acct.userAddr, 6, 6, "0x", "...")}
                         </a>
                     </div>
                     <div>User ID: {acct.sub}</div>
-                    <div>Balance: {typeof balance === 'undefined' ? '(loading)' : `${balance} SUI`}</div>
+                    <div>Balance: {typeof balance === "undefined" ? "(loading)" : `${balance} SUI`}</div>
                     <button
-                        className={`btn-send ${!balance ? 'disabled' : ''}`}
+                        className={`btn-send ${!balance ? "disabled" : ""}`}
                         disabled={!balance}
-                        onClick={() => {sendTransaction(acct)}}
+                        onClick={() => {sendTransaction(acct);}}
                     >
                         Send transaction
                     </button>
                     { balance === 0 &&
                         <button
-                            className='btn-faucet'
+                            className="btn-faucet"
                             onClick={() => {
                                 requestSuiFromFaucet(NETWORK, acct.userAddr);
-                                setModalContent('💰 Requesting SUI from faucet. This will take a few seconds...');
-                                setTimeout(() => { setModalContent('') }, 3000);
+                                setModalContent("💰 Requesting SUI from faucet. This will take a few seconds...");
+                                setTimeout(() => { setModalContent(""); }, 3000);
                             }}
                         >
                             Use faucet
@@ -470,10 +470,10 @@ export const App: React.FC = () =>
         </div>
         }
 
-        <div className='section'>
+        <div className="section">
             <button
-                className='btn-clear'
-                onClick={() => { clearState() }}
+                className="btn-clear"
+                onClick={() => { clearState(); }}
             >
                 🧨 CLEAR STATE
             </button>
@@ -481,4 +481,4 @@ export const App: React.FC = () =>
 
     </div>
     );
-}
+};

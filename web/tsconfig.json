@@ -1,16 +1,16 @@
 {
     "include": [
-        "./src",
-        "./vite.config.ts"
+        "src",
+        "vite.config.ts"
     ],
     "exclude": [
-        "./dist",
-        "./node_modules",
+        "dist",
+        "node_modules",
     ],
     "compilerOptions": {
         /* Language and Environment */
-        "target": "ES2021",                                 /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
-        "lib": ["ES2021", "DOM", "DOM.Iterable"],           /* Specify a set of bundled library declaration files that describe the target runtime environment. */
+        "target": "ESNext",                                 /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
+        "lib": ["ESNext", "DOM"],                           /* Specify a set of bundled library declaration files that describe the target runtime environment. */
         "jsx": "react-jsx",                                 /* Specify what JSX code is generated. */
         "useDefineForClassFields": true,                    /* Emit ECMAScript-standard-compliant class fields. */
 
