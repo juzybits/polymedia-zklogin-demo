@@ -1,7 +1,7 @@
-import { SuiClient, getFullnodeUrl } from "@mysten/sui.js/client";
-import { SerializedSignature, decodeSuiPrivateKey } from "@mysten/sui.js/cryptography";
-import { Ed25519Keypair } from "@mysten/sui.js/keypairs/ed25519";
-import { TransactionBlock } from "@mysten/sui.js/transactions";
+import { SuiClient, getFullnodeUrl } from "@mysten/sui/client";
+import { decodeSuiPrivateKey } from "@mysten/sui/cryptography";
+import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
+import { Transaction } from "@mysten/sui/transactions";
 import {
     genAddressSeed,
     generateNonce,
@@ -10,8 +10,8 @@ import {
     getZkLoginSignature,
     jwtToAddress,
 } from "@mysten/zklogin";
-import { NetworkName, makeExplorerUrl, requestSuiFromFaucet, shortenSuiAddress } from "@polymedia/suits";
-import { Modal, isLocalhost } from "@polymedia/webutils";
+import { NetworkName, makePolymediaUrl, requestSuiFromFaucet, shortenSuiAddress } from "@polymedia/suitcase-core";
+import { Modal, isLocalhost } from "@polymedia/suitcase-react";
 import { jwtDecode } from "jwt-decode";
 import { useEffect, useRef, useState } from "react";
 import "./App.less";
@@ -272,11 +272,11 @@ export const App: React.FC = () =>
         setModalContent("🚀 Sending transaction...");
 
         // Sign the transaction bytes with the ephemeral private key
-        const txb = new TransactionBlock();
-        txb.setSender(account.userAddr);
+        const tx = new Transaction();
+        tx.setSender(account.userAddr);
 
         const ephemeralKeyPair = keypairFromSecretKey(account.ephemeralPrivateKey);
-        const { bytes, signature: userSignature } = await txb.sign({
+        const { bytes, signature: userSignature } = await tx.sign({
             client: suiClient,
             signer: ephemeralKeyPair,
         });
@@ -291,7 +291,7 @@ export const App: React.FC = () =>
 
         // Serialize the zkLogin signature by combining the ZK proof (inputs), the maxEpoch,
         // and the ephemeral signature (userSignature)
-        const zkLoginSignature : SerializedSignature = getZkLoginSignature({
+        const zkLoginSignature = getZkLoginSignature({
             inputs: {
                 ...account.zkProofs,
                 addressSeed,
@@ -431,7 +431,7 @@ export const App: React.FC = () =>
             <h2>Accounts:</h2>
             {accounts.current.map(acct => {
                 const balance = balances.get(acct.userAddr);
-                const explorerLink = makeExplorerUrl(NETWORK, "address", acct.userAddr);
+                const explorerLink = makePolymediaUrl(NETWORK, "address", acct.userAddr);
                 return (
                 <div className="account" key={acct.userAddr}>
                     <div>
