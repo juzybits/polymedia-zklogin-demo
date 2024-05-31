@@ -18,7 +18,7 @@ body {
     margin: 0 auto;
     max-width: 800px;
     min-height: 100vh;
-    padding: 2.5rem 1.2rem;
+    padding: 3.5rem 1.2rem 3rem;
     position: relative;
 }
 
@@ -34,18 +34,27 @@ h1 {
     padding: 0.15rem 0.4rem;
     position: absolute;
     right: 1rem;
-    top: 0.8rem;
+    top: 1rem;
 }
 
-#polymedia-logo {
+#logos {
     position: absolute;
-    top: 0.6rem;
-    img {
-        height: 1.8rem;
+    top: 0.8rem;
+    display: flex;
+    flex-direction: row;
+    gap: 0.75rem;
+    img, svg {
+        height: 31px;
+        width: 31px;
         &:hover {
             cursor: pointer;
-            filter: brightness(1.16);
         }
+    }
+    img:hover {
+        filter: brightness(1.16);
+    }
+    svg:hover {
+        filter: brightness(2);
     }
 }
 
