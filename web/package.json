@@ -26,6 +26,8 @@
         "@mysten/sui": "^1.31.0",
         "@polymedia/suitcase-core": "^0.0.57",
         "@polymedia/suitcase-react": "^0.0.57",
+        "eslint-plugin-import": "^2.31.0",
+        "eslint-plugin-unused-imports": "^4.1.4",
         "jwt-decode": "^4.0.0",
         "react": "^19.1.0",
         "react-dom": "^19.1.0"
