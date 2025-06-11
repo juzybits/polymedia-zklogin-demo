@@ -144,3 +144,19 @@ h1 {
 &.Facebook {
     background-color: #0766ff;
 }
+
+dialog {
+    padding: 2rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    text-align: center;
+    min-width: 300px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    outline: none;
+    &::backdrop {
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+    }
+}
