@@ -9,8 +9,8 @@ import {
     getExtendedEphemeralPublicKey,
     getZkLoginSignature,
     jwtToAddress,
-} from "@mysten/zklogin";
-import { NetworkName, makePolymediaUrl, requestSuiFromFaucet, shortenSuiAddress } from "@polymedia/suitcase-core";
+} from "@mysten/sui/zklogin";
+import { NetworkName, makePolymediaUrl, requestSuiFromFaucet, shortenAddress } from "@polymedia/suitcase-core";
 import { LinkExternal, Modal, isLocalhost } from "@polymedia/suitcase-react";
 import { jwtDecode } from "jwt-decode";
 import { useEffect, useRef, useState } from "react";
@@ -401,7 +401,9 @@ export const App: React.FC = () =>
     return (
     <div id="page">
 
-        <Modal content={modalContent} />
+        <Modal onClose={() => setModalContent("")}>
+            {modalContent}
+        </Modal>
 
         <div id="logos">
             <LinkExternal href="https://polymedia.app" follow={true}>
@@ -445,7 +447,7 @@ export const App: React.FC = () =>
                     </div>
                     <div>
                         Address: <a target="_blank" rel="noopener noreferrer" href={explorerLink}>
-                            {shortenSuiAddress(acct.userAddr)}
+                            {shortenAddress(acct.userAddr)}
                         </a>
                     </div>
                     <div>User ID: {acct.sub}</div>
