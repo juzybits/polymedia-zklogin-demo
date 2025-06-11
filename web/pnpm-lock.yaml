@@ -12,11 +12,11 @@ importers:
         specifier: ^1.31.0
         version: 1.31.0(typescript@5.8.3)
       '@polymedia/suitcase-core':
-        specifier: ^0.0.56
-        version: 0.0.56(@mysten/sui@1.31.0(typescript@5.8.3))
+        specifier: ^0.0.57
+        version: 0.0.57(@mysten/sui@1.31.0(typescript@5.8.3))
       '@polymedia/suitcase-react':
-        specifier: ^0.0.56
-        version: 0.0.56(@mysten/dapp-kit@0.16.10(@tanstack/react-query@5.80.6(react@19.1.0))(@types/react-dom@19.1.6(@types/react@19.1.7))(@types/react@19.1.7)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.3))(@mysten/sui@1.31.0(typescript@5.8.3))(react-router-dom@7.6.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)
+        specifier: ^0.0.57
+        version: 0.0.57(@mysten/dapp-kit@0.16.10(@tanstack/react-query@5.80.6(react@19.1.0))(@types/react-dom@19.1.6(@types/react@19.1.7))(@types/react@19.1.7)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.3))(@mysten/sui@1.31.0(typescript@5.8.3))(react-router-dom@7.6.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)
       jwt-decode:
         specifier: ^4.0.0
         version: 4.0.0
@@ -711,13 +711,13 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
-  '@polymedia/suitcase-core@0.0.56':
-    resolution: {integrity: sha512-Qc99IGhVIBRX5S2Xu8wpYZPJokP94U1rrApo4IwTlvl3ASP6x4eZDYer8OQSzNUnbKOj5+pgnd/Mc1ujvNB9vg==}
+  '@polymedia/suitcase-core@0.0.57':
+    resolution: {integrity: sha512-WwdxA1aRo83G0cv3dPcMb/p/zD2UzGQzrWWMKm8PIuWXoZOXnuzM1PvY/yKd5LU/9aeEmzgjBhHSzzPF5e+BGQ==}
     peerDependencies:
       '@mysten/sui': ^1.31.0
 
-  '@polymedia/suitcase-react@0.0.56':
-    resolution: {integrity: sha512-1W4z8i+EucdB/AhplWBfNjEsutnOm71Ml/LYUpBmHn7Tj3guhS8Oz8cy9wGaEkiS5gnmfQ66iCCEIfKmFM0AKA==}
+  '@polymedia/suitcase-react@0.0.57':
+    resolution: {integrity: sha512-xH2VftgWUwv0E22ijXYPYK1eJ0ABww6/GrfStjmGKZPbVj2FvoJWFJ9hq00hUuLJtoo4YQAEBGrbFpaFrlgZKg==}
     peerDependencies:
       '@mysten/dapp-kit': ^0.16.10
       '@mysten/sui': ^1.31.0
@@ -3109,15 +3109,15 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.19.1
 
-  '@polymedia/suitcase-core@0.0.56(@mysten/sui@1.31.0(typescript@5.8.3))':
+  '@polymedia/suitcase-core@0.0.57(@mysten/sui@1.31.0(typescript@5.8.3))':
     dependencies:
       '@mysten/sui': 1.31.0(typescript@5.8.3)
 
-  '@polymedia/suitcase-react@0.0.56(@mysten/dapp-kit@0.16.10(@tanstack/react-query@5.80.6(react@19.1.0))(@types/react-dom@19.1.6(@types/react@19.1.7))(@types/react@19.1.7)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.3))(@mysten/sui@1.31.0(typescript@5.8.3))(react-router-dom@7.6.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)':
+  '@polymedia/suitcase-react@0.0.57(@mysten/dapp-kit@0.16.10(@tanstack/react-query@5.80.6(react@19.1.0))(@types/react-dom@19.1.6(@types/react@19.1.7))(@types/react@19.1.7)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.3))(@mysten/sui@1.31.0(typescript@5.8.3))(react-router-dom@7.6.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@mysten/dapp-kit': 0.16.10(@tanstack/react-query@5.80.6(react@19.1.0))(@types/react-dom@19.1.6(@types/react@19.1.7))(@types/react@19.1.7)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.3)
       '@mysten/sui': 1.31.0(typescript@5.8.3)
-      '@polymedia/suitcase-core': 0.0.56(@mysten/sui@1.31.0(typescript@5.8.3))
+      '@polymedia/suitcase-core': 0.0.57(@mysten/sui@1.31.0(typescript@5.8.3))
       normalize.css: 8.0.1
       react: 19.1.0
       react-router-dom: 7.6.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)

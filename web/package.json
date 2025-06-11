@@ -24,8 +24,8 @@
     },
     "dependencies": {
         "@mysten/sui": "^1.31.0",
-        "@polymedia/suitcase-core": "^0.0.56",
-        "@polymedia/suitcase-react": "^0.0.56",
+        "@polymedia/suitcase-core": "^0.0.57",
+        "@polymedia/suitcase-react": "^0.0.57",
         "jwt-decode": "^4.0.0",
         "react": "^19.1.0",
         "react-dom": "^19.1.0"
