@@ -17,8 +17,10 @@
         "deploy-dev": "pnpm build && wrangler pages deploy dist/ --project-name zklogin-demo --branch dev",
         "deploy-prod": "pnpm build && wrangler pages deploy dist/ --project-name zklogin-demo --branch main",
         "dev": "vite",
+        "host": "vite --host",
         "lint": "eslint src/ --report-unused-disable-directives --max-warnings 0",
-        "preview": "pnpm build && vite preview"
+        "preview": "pnpm build && vite preview",
+        "typecheck": "tsc -b"
     },
     "dependencies": {
         "@mysten/sui": "^1.31.0",
@@ -43,5 +45,6 @@
         "vite": "^6.3.5",
         "wrangler": "^4.19.1"
     },
-    "type": "module"
+    "type": "module",
+    "sideEffects": false
 }
